@@ -219,10 +219,13 @@ def inline(inference_state, names):
         tree_name = name.tree_name
         path = name.get_root_context().py__file__()
         s = replace_code
-        if rhs.type == 'testlist_star_expr' \
-                or tree_name.parent.type in EXPRESSION_PARTS \
-                or tree_name.parent.type == 'trailer' \
-                and tree_name.parent.get_next_sibling() is not None:
+        needs_parens = (
+            rhs.type == 'testlist_star_expr'
+            or tree_name.parent.type in EXPRESSION_PARTS
+            or tree_name.parent.type == 'trailer'
+            and tree_name.parent.get_next_sibling() is not None
+        )
+        if needs_parens and not _is_safe_without_parens(rhs):
             s = '(' + replace_code + ')'
 
         of_path = file_to_node_changes.setdefault(path, {})
@@ -248,6 +251,27 @@ def inline(inference_state, names):
             and (next_leaf.type == 'newline' or next_leaf == ';'):
         changes[next_leaf] = ''
     return Refactoring(inference_state, file_to_node_changes)
+
+
+def _is_safe_without_parens(rhs):
+    """
+    Returns True if the RHS expression is safe to inline without adding
+    parentheses. This is the case for simple atoms (numbers, strings, names,
+    keywords like None/True/False) and for expressions already wrapped in
+    parentheses/brackets/braces.
+    """
+    # Simple leaf nodes are always safe
+    if rhs.type in ('number', 'string', 'keyword', 'fstring'):
+        return True
+    # A name is a simple atom, safe without parens
+    if rhs.type == 'name':
+        return True
+    # An atom that starts with (, [, or { is already delimited
+    if rhs.type == 'atom' and hasattr(rhs, 'children') and rhs.children:
+        first_child = rhs.children[0]
+        if hasattr(first_child, 'value') and first_child.value in ('(', '[', '{'):
+            return True
+    return False
 
 
 def _remove_indent_of_prefix(prefix):
