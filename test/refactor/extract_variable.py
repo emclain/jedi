@@ -379,3 +379,17 @@ y = sum(x * 2 for x in range(10))
 #? 4 text {'new_name': 'total'}
 total = sum(x * 2 for x in range(10))
 y = total
+# -------------------------------------------------- ellipsis-literal
+#? 4 text {'new_name': 'y'}
+x = ...
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'y'}
+y = ...
+x = y
+# -------------------------------------------------- ellipsis-in-call
+#? 4 text {'new_name': 'y', 'until_column': 7}
+foo(...)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'y', 'until_column': 7}
+y = ...
+foo(y)

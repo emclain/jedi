@@ -36,7 +36,9 @@ def _is_expression_with_error(nodes):
         return False, 'Cannot extract a name that defines something'
 
     if nodes[0].type not in _VARIABLE_EXCTRACTABLE:
-        return False, 'Cannot extract a "%s"' % nodes[0].type
+        # Ellipsis literal (...) is parsed as an operator but is a valid expression
+        if not (nodes[0].type == 'operator' and nodes[0].value == '...'):
+            return False, 'Cannot extract a "%s"' % nodes[0].type
     return True, ''
 
 
@@ -202,7 +204,7 @@ def _remove_unwanted_expression_nodes(parent_node, pos, until_pos):
 
 
 def _is_not_extractable_syntax(node):
-    return node.type == 'operator' \
+    return node.type == 'operator' and node.value != '...' \
         or node.type == 'keyword' and node.value not in ('None', 'True', 'False')
 
 
