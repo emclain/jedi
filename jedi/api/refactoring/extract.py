@@ -274,17 +274,22 @@ def extract_function(inference_state, path, module_context, name, pos, until_pos
     else:
         code_block += '\n'
 
-    function_code = '%sdef %s(%s):\n%s' % (
+    is_async = _contains_await(nodes)
+    async_prefix = 'async ' if is_async else ''
+
+    function_code = '%s%sdef %s(%s):\n%s' % (
         decorator,
+        async_prefix,
         name,
         ', '.join(params if self_param is None else [self_param] + params),
         indent_block(code_block)
     )
 
-    function_call = '%s(%s)' % (
+    call_expr = '%s(%s)' % (
         ('' if self_param is None else self_param + '.') + name,
         ', '.join(params)
     )
+    function_call = ('await ' + call_expr) if is_async else call_expr
     if is_expression:
         replacement = function_call
     else:
@@ -299,6 +304,22 @@ def extract_function(inference_state, path, module_context, name, pos, until_pos
         replacement_dct[after_leaf] = second + after_leaf.value
     file_to_node_changes = {path: replacement_dct}
     return Refactoring(inference_state, file_to_node_changes)
+
+
+def _contains_await(nodes):
+    """Check if any of the nodes contain an await expression."""
+    for node in nodes:
+        try:
+            children = node.children
+        except AttributeError:
+            if node.type == 'keyword' and node.value == 'await':
+                return True
+        else:
+            if node.type == 'await_expr':
+                return True
+            if _contains_await(children):
+                return True
+    return False
 
 
 def _check_for_non_extractables(nodes):

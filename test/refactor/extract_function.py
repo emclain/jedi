@@ -625,11 +625,11 @@ async def process():
     data = await do_work()
     return data + 1
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def helper(do_work):
+async def helper(do_work):
     return await do_work()
 
 
 async def process():
     #? 15 text {'new_name': 'helper'}
-    data = helper(do_work)
+    data = await helper(do_work)
     return data + 1
