@@ -461,3 +461,158 @@ def x():
         pass
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot extract yield statements.
+# -------------------------------------------------- with-global-var
+glob = 1
+def f():
+    #? 11 text {'new_name': 'ab'}
+    return glob + 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+glob = 1
+def ab():
+    return glob + 2
+
+
+def f():
+    #? 11 text {'new_name': 'ab'}
+    return ab()
+# -------------------------------------------------- multiple-params
+def f(a, b, c):
+    #? 11 text {'new_name': 'ab'}
+    return a + b * c
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(a, b, c):
+    return a + b * c
+
+
+def f(a, b, c):
+    #? 11 text {'new_name': 'ab'}
+    return ab(a, b, c)
+# -------------------------------------------------- with-try-except
+def f():
+    #? 0 text {'new_name': 'ab', 'until_line': 6, 'until_column': 4}
+    try:
+        x = 1
+    except:
+        x = 2
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab():
+    try:
+        x = 1
+    except:
+        x = 2
+    return x
+
+
+def f():
+    #? 0 text {'new_name': 'ab', 'until_line': 6, 'until_column': 4}
+    x = ab()
+    return x
+# -------------------------------------------------- with-statement-range
+def f():
+    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
+    with open('f') as fh:
+        data = fh.read()
+    return data
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab():
+    with open('f') as fh:
+        data = fh.read()
+    return data
+
+
+def f():
+    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
+    data = ab()
+    return data
+# -------------------------------------------------- empty-return
+def f():
+    #? 11 text {'new_name': 'ab'}
+    return 42
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab():
+    return 42
+
+
+def f():
+    #? 11 text {'new_name': 'ab'}
+    return ab()
+# -------------------------------------------------- in-nested-class
+class Outer:
+    class Inner:
+        def f(self, x):
+            #? 15 text {'new_name': 'ab'}
+            return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class Outer:
+    class Inner:
+        def ab(self, x):
+            return x + 1
+
+        def f(self, x):
+            #? 15 text {'new_name': 'ab'}
+            return self.ab(x)
+# -------------------------------------------------- expression-with-call
+def f(x):
+    #? 11 text {'new_name': 'ab'}
+    return len(x) + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(x):
+    return len(x) + 1
+
+
+def f(x):
+    #? 11 text {'new_name': 'ab'}
+    return ab(x)
+# -------------------------------------------------- boolean-expression
+def f(a, b):
+    #? 11 text {'new_name': 'ab'}
+    return a and b or not a
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(a, b):
+    return a and b or not a
+
+
+def f(a, b):
+    #? 11 text {'new_name': 'ab'}
+    return ab(a, b)
+# -------------------------------------------------- range-with-if
+def f(x):
+    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
+    if x > 0:
+        result = x
+    else:
+        result = -x
+    return result
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(x):
+    if x > 0:
+        result = x
+    else:
+        result = -x
+    return result
+
+
+def f(x):
+    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
+    result = ab(x)
+    return result
+# -------------------------------------------------- range-with-for-loop
+def f(items):
+    #? 0 text {'new_name': 'ab', 'until_line': 5, 'until_column': 4}
+    total = 0
+    for item in items:
+        total += item
+    return total
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(items):
+    total = 0
+    for item in items:
+        total += item
+    return total
+
+
+def f(items):
+    #? 0 text {'new_name': 'ab', 'until_line': 5, 'until_column': 4}
+    total = ab(items)
+    return total

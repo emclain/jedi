@@ -258,3 +258,112 @@ y = foo(lambda x: 3, 5)
 #? 8 text {'new_name': 'x', 'until_column': 17}
 x = lambda x: 3
 y = foo(x, 5)
+# -------------------------------------------------- string-literal
+#? 8 text {'new_name': 'msg', 'until_column': 15}
+y = foo("hello")
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 8 text {'new_name': 'msg', 'until_column': 15}
+msg = "hello"
+y = foo(msg)
+# -------------------------------------------------- fstring-error
+#? 8 error {'new_name': 'x'}
+y = foo(f"val={a}")
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot extract a "fstring_start"
+# -------------------------------------------------- dict-literal
+#? 4 text {'new_name': 'x'}
+y = {1: 2, 3: 4}
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'x'}
+x = {1: 2, 3: 4}
+y = x
+# -------------------------------------------------- list-literal
+#? 4 text {'new_name': 'x'}
+y = [1, 2, 3]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'x'}
+x = [1, 2, 3]
+y = x
+# -------------------------------------------------- nested-call
+#? 4 text {'new_name': 'x'}
+y = foo(bar(baz(1)))
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'x'}
+x = foo(bar(baz(1)))
+y = x
+# -------------------------------------------------- method-chain
+#? 4 text {'new_name': 'x'}
+y = foo.bar.baz(1)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'x'}
+x = foo.bar.baz(1)
+y = x
+# -------------------------------------------------- chained-comparison
+#? 4 text {'new_name': 'x', 'until_column': 13}
+y = 1 < a < 10
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'x', 'until_column': 13}
+x = 1 < a < 10
+y = x
+# -------------------------------------------------- in-if-condition
+if 1:
+    #? 7 text {'new_name': 'x'}
+    if foo(a + b):
+        pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+if 1:
+    #? 7 text {'new_name': 'x'}
+    x = foo(a + b)
+    if x:
+        pass
+# -------------------------------------------------- boolean-and
+#? 4 text {'new_name': 'x', 'until_column': 11}
+y = a and b or c
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'x', 'until_column': 11}
+x = a and b
+y = x or c
+# -------------------------------------------------- walrus-operator-error
+#? 4 error {'new_name': 'x'}
+(y := 3)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot extract a "namedexpr_test"
+# -------------------------------------------------- in-function-body
+def test():
+    #? 8 text {'new_name': 'x'}
+    return foo(a + b * c)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def test():
+    #? 8 text {'new_name': 'x'}
+    x = foo(a + b * c)
+    return x
+# -------------------------------------------------- inner-expression
+#? 8 text {'new_name': 'x', 'until_column': 18}
+y = foo(1 + bar(2))
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 8 text {'new_name': 'x', 'until_column': 18}
+x = 1 + bar(2)
+y = foo(x)
+# -------------------------------------------------- negative-number
+#? 4 text {'new_name': 'x'}
+y = -42
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'x'}
+x = -42
+y = x
+# -------------------------------------------------- double-star-extracts-call
+#? 5 text {'new_name': 'x'}
+foo(**kwargs)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 5 text {'new_name': 'x'}
+x = foo(**kwargs)
+x
+# -------------------------------------------------- decorator-name
+#? 1 text {'new_name': 'x'}
+@decorator
+def f(): pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 1 text {'new_name': 'x'}
+x = decorator
+@x
+def f(): pass

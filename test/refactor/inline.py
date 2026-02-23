@@ -246,3 +246,162 @@ a.conjugate
  #? 0
 -a.conjugate
 +(1 + 2).conjugate
+# -------------------------------------------------- multiple-references
+def test():
+    #? 4
+    a = 1 + 2
+    b = a + a
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ def test():
+     #? 4
+-    a = 1 + 2
+-    b = a + a
++    b = (1 + 2) + (1 + 2)
+# -------------------------------------------------- in-function-call
+def test():
+    #? 4
+    x = foo(1, 2)
+    return bar(x, x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ def test():
+     #? 4
+-    x = foo(1, 2)
+-    return bar(x, x)
++    return bar(foo(1, 2), foo(1, 2))
+# -------------------------------------------------- string-value
+#? 0
+a = "hello world"
+test(a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = "hello world"
+-test(a)
++test("hello world")
+# -------------------------------------------------- multiline-expr
+x
+#? 0
+a = (1 +
+     2)
+test(a * 3)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,6 +1,5 @@
+ x
+ #? 0
+-a = (1 +
+-     2)
+-test(a * 3)
++test(((1 +
++     2)) * 3)
+# -------------------------------------------------- dict-value
+#? 0
+a = {1: 2}
+test(a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = {1: 2}
+-test(a)
++test({1: 2})
+# -------------------------------------------------- list-value
+#? 0
+a = [1, 2, 3]
+test(a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = [1, 2, 3]
+-test(a)
++test([1, 2, 3])
+# -------------------------------------------------- unary-not
+#? 0
+a = not True
+test(a and b)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = not True
+-test(a and b)
++test((not True) and b)
+# -------------------------------------------------- conditional-expr
+#? 0
+a = x if cond else y
+test(a + 1)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = x if cond else y
+-test(a + 1)
++test((x if cond else y) + 1)
+# -------------------------------------------------- lambda-value
+#? 0
+a = lambda x: x + 1
+test(a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = lambda x: x + 1
+-test(a)
++test(lambda x: x + 1)
+# -------------------------------------------------- nested-function-scope
+def outer():
+    def inner():
+        #? 8
+        x = 42
+        return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,6 +1,5 @@
+ def outer():
+     def inner():
+         #? 8
+-        x = 42
+-        return x + 1
++        return (42) + 1
+# -------------------------------------------------- import-name-error
+import os
+#? 0 error
+os
+test(os)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot inline imports, modules or namespaces
+# -------------------------------------------------- from-import-error
+from os.path import join
+#? 0 error
+join
+test(join)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot inline imports, modules or namespaces
+# -------------------------------------------------- comparison-parens
+#? 0
+a = 1 < 2
+test(a and b)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = 1 < 2
+-test(a and b)
++test((1 < 2) and b)

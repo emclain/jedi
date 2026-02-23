@@ -233,3 +233,136 @@ rename to import_tree/rename
  #? 4 {'new_name': 'rename'}
 -pkgx
 +rename
+# -------------------------------------------------- decorator-reference
+def my_dec(f):
+    return f
+
+#? 1 {'new_name': 'new_dec'}
+@my_dec
+def my_func():
+    pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,8 +1,8 @@
+-def my_dec(f):
++def new_dec(f):
+     return f
+ 
+ #? 1 {'new_name': 'new_dec'}
+-@my_dec
++@new_dec
+ def my_func():
+     pass
+# -------------------------------------------------- type-annotation
+def f(x: int) -> str:
+    #? 4 {'new_name': 'y'}
+    a: int = x + 1
+    return str(a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ def f(x: int) -> str:
+     #? 4 {'new_name': 'y'}
+-    a: int = x + 1
+-    return str(a)
++    y: int = x + 1
++    return str(y)
+# -------------------------------------------------- comprehension-scope
+#? 0 {'new_name': 'y'}
+x = [x for x in range(10)]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,3 +1,3 @@
+ #? 0 {'new_name': 'y'}
+-x = [x for x in range(10)]
++y = [x for x in range(10)]
+# -------------------------------------------------- global-from-function
+x_var = 1
+def f():
+    #? 4 {'new_name': 'y_var'}
+    x_var = 2
+    return x_var
+x_var
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ x_var = 1
+ def f():
+     #? 4 {'new_name': 'y_var'}
+-    x_var = 2
+-    return x_var
++    y_var = 2
++    return y_var
+ x_var
+# -------------------------------------------------- multiple-functions
+def func1():
+    pass
+def func2():
+    #? 4 {'new_name': 'new_func'}
+    func1()
+func1()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+-def func1():
++def new_func():
+     pass
+ def func2():
+     #? 4 {'new_name': 'new_func'}
+-    func1()
+-func1()
++    new_func()
++new_func()
+# -------------------------------------------------- class-method
+class MyClass:
+    def method(self):
+        #? 13 {'new_name': 'new_method'}
+        self.method()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ class MyClass:
+-    def method(self):
++    def new_method(self):
+         #? 13 {'new_name': 'new_method'}
+-        self.method()
++        self.new_method()
+# -------------------------------------------------- class-name
+#? 6 {'new_name': 'NewClass'}
+class OldClass:
+    pass
+x = OldClass()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 6 {'new_name': 'NewClass'}
+-class OldClass:
++class NewClass:
+     pass
+-x = OldClass()
++x = NewClass()
+# -------------------------------------------------- nested-function
+def outer():
+    def inner():
+        #? 8 {'new_name': 'new_inner'}
+        inner()
+    inner()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,6 +1,6 @@
+ def outer():
+-    def inner():
++    def new_inner():
+         #? 8 {'new_name': 'new_inner'}
+-        inner()
+-    inner()
++        new_inner()
++    new_inner()
