@@ -13,6 +13,10 @@ _DEFINITION_SCOPES = ('suite', 'file_input')
 _VARIABLE_EXCTRACTABLE = EXPRESSION_PARTS + \
     ('atom testlist_star_expr testlist test lambdef lambdef_nocond '
      'keyword name number string fstring').split()
+_FRIENDLY_TYPE_NAMES = {
+    'namedexpr_test': 'walrus operator (:=)',
+    'fstring_start': 'f-string',
+}
 
 
 def extract_variable(inference_state, path, module_node, name, pos, until_pos):
@@ -38,7 +42,9 @@ def _is_expression_with_error(nodes):
     if nodes[0].type not in _VARIABLE_EXCTRACTABLE:
         # Ellipsis literal (...) is parsed as an operator but is a valid expression
         if not (nodes[0].type == 'operator' and nodes[0].value == '...'):
-            return False, 'Cannot extract a "%s"' % nodes[0].type
+            # Use friendly names for internal parser node types
+            type_name = _FRIENDLY_TYPE_NAMES.get(nodes[0].type, nodes[0].type)
+            return False, 'Cannot extract a "%s"' % type_name
     return True, ''
 
 

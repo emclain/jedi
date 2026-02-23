@@ -260,7 +260,7 @@ y = foo(msg)
 #? 8 error {'new_name': 'x'}
 y = foo(f"val={a}")
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-Cannot extract a "fstring_start"
+Cannot extract a "f-string"
 # -------------------------------------------------- dict-literal
 #? 4 text {'new_name': 'x'}
 y = {1: 2, 3: 4}
@@ -318,7 +318,7 @@ y = x or c
 #? 4 error {'new_name': 'x'}
 (y := 3)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-Cannot extract a "namedexpr_test"
+Cannot extract a "walrus operator (:=)"
 # -------------------------------------------------- in-function-body
 def test():
     #? 8 text {'new_name': 'x'}
