@@ -366,3 +366,151 @@ def outer():
 -    inner()
 +        new_inner()
 +    new_inner()
+# -------------------------------------------------- fstring-var
+#? 0 {'new_name': 'user'}
+name = 'world'
+msg = f'hello {name}'
+print(name)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'user'}
+-name = 'world'
+-msg = f'hello {name}'
+-print(name)
++user = 'world'
++msg = f'hello {user}'
++print(user)
+# -------------------------------------------------- except-as-var
+try:
+    pass
+#? 21 {'new_name': 'exc'}
+except ValueError as err:
+    print(err)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,6 +1,6 @@
+ try:
+     pass
+ #? 21 {'new_name': 'exc'}
+-except ValueError as err:
+-    print(err)
++except ValueError as exc:
++    print(exc)
+# -------------------------------------------------- global-decl
+#? 0 {'new_name': 'y'}
+x = 10
+def f():
+    global x
+    x = 20
+def g():
+    print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,8 +1,8 @@
+ #? 0 {'new_name': 'y'}
+-x = 10
++y = 10
+ def f():
+-    global x
+-    x = 20
++    global y
++    y = 20
+ def g():
+-    print(x)
++    print(y)
+# -------------------------------------------------- async-function
+#? 10 {'new_name': 'get_data'}
+async def fetch_data():
+    return 42
+
+async def main():
+    result = await fetch_data()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ #? 10 {'new_name': 'get_data'}
+-async def fetch_data():
++async def get_data():
+     return 42
+ 
+ async def main():
+-    result = await fetch_data()
++    result = await get_data()
+# -------------------------------------------------- walrus-var
+#? 11 {'new_name': 'z'}
+result = [(y := x + 1) for x in range(5)]
+print(y)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 11 {'new_name': 'z'}
+-result = [(y := x + 1) for x in range(5)]
+-print(y)
++result = [(z := x + 1) for x in range(5)]
++print(z)
+# -------------------------------------------------- comprehension-inner-var
+#? 20 {'new_name': 'i'}
+result = [x * 2 for x in range(10)]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,3 +1,3 @@
+ #? 20 {'new_name': 'i'}
+-result = [x * 2 for x in range(10)]
++result = [i * 2 for i in range(10)]
+# -------------------------------------------------- for-loop-var
+#? 4 {'new_name': 'element'}
+for item in range(10):
+    print(item)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 4 {'new_name': 'element'}
+-for item in range(10):
+-    print(item)
++for element in range(10):
++    print(element)
+# -------------------------------------------------- with-as-var
+#? 19 {'new_name': 'handle'}
+with open('f') as fh:
+    data = fh.read()
+    fh.close()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 19 {'new_name': 'handle'}
+-with open('f') as fh:
+-    data = fh.read()
+-    fh.close()
++with open('f') as handle:
++    data = handle.read()
++    handle.close()
+# -------------------------------------------------- import-as-alias
+from import_tree.some_mod import foobar as fb
+result = fb + 1
+#? 0 {'new_name': 'alias'}
+fb
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- import_tree/some_mod.py
++++ import_tree/some_mod.py
+@@ -1,2 +1,2 @@
+-foobar = 3
++alias = 3
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+-from import_tree.some_mod import foobar as fb
+-result = fb + 1
++from import_tree.some_mod import foobar as alias
++result = alias + 1
+ #? 0 {'new_name': 'alias'}
+-fb
++alias

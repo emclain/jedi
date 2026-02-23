@@ -603,3 +603,33 @@ def f(items):
     for item in items:
         #? 15 text {'new_name': 'ab'}
         return ab(item)
+# -------------------------------------------------- nonlocal-read
+def outer():
+    x = 10
+    def inner():
+        #? 15 text {'new_name': 'helper'}
+        return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def helper(x):
+    return x + 1
+
+
+def outer():
+    x = 10
+    def inner():
+        #? 15 text {'new_name': 'helper'}
+        return helper(x)
+# -------------------------------------------------- async-await-bug
+async def process():
+    #? 15 text {'new_name': 'helper'}
+    data = await do_work()
+    return data + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def helper(do_work):
+    return await do_work()
+
+
+async def process():
+    #? 15 text {'new_name': 'helper'}
+    data = helper(do_work)
+    return data + 1

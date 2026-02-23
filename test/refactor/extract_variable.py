@@ -358,3 +358,24 @@ def f(): pass
 x = decorator
 @x
 def f(): pass
+# -------------------------------------------------- set-literal
+#? 8 text {'new_name': 'x', 'until_column': 17}
+y = foo({1, 2, 3})
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 8 text {'new_name': 'x', 'until_column': 17}
+x = {1, 2, 3}
+y = foo(x)
+# -------------------------------------------------- bytes-literal
+#? 8 text {'new_name': 'x', 'until_column': 16}
+y = foo(b'hello')
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 8 text {'new_name': 'x', 'until_column': 16}
+x = b'hello'
+y = foo(x)
+# -------------------------------------------------- generator-in-call
+#? 4 text {'new_name': 'total'}
+y = sum(x * 2 for x in range(10))
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 4 text {'new_name': 'total'}
+total = sum(x * 2 for x in range(10))
+y = total
