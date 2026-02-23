@@ -489,54 +489,51 @@ def f(a, b, c):
     return ab(a, b, c)
 # -------------------------------------------------- with-try-except
 def f():
-    #? 0 text {'new_name': 'ab', 'until_line': 6, 'until_column': 4}
     try:
         x = 1
     except:
-        x = 2
-    return x
+        #? 15 text {'new_name': 'ab'}
+        return x + 1
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def ab():
-    try:
-        x = 1
-    except:
-        x = 2
-    return x
+def ab(x):
+    return x + 1
 
 
 def f():
-    #? 0 text {'new_name': 'ab', 'until_line': 6, 'until_column': 4}
-    x = ab()
-    return x
+    try:
+        x = 1
+    except:
+        #? 15 text {'new_name': 'ab'}
+        return ab(x)
 # -------------------------------------------------- with-statement-range
 def f():
-    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
     with open('f') as fh:
-        data = fh.read()
-    return data
+        #? 15 text {'new_name': 'ab'}
+        return fh.read()
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def ab():
+def ab(fh):
+    return fh.read()
+
+
+def f():
     with open('f') as fh:
-        data = fh.read()
-    return data
-
-
-def f():
-    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
-    data = ab()
-    return data
-# -------------------------------------------------- empty-return
-def f():
-    #? 11 text {'new_name': 'ab'}
-    return 42
+        #? 15 text {'new_name': 'ab'}
+        return ab(fh)
+# -------------------------------------------------- in-staticmethod
+class C:
+    @staticmethod
+    def f(x):
+        #? 15 text {'new_name': 'ab'}
+        return x + 1
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def ab():
-    return 42
+def ab(x):
+    return x + 1
 
-
-def f():
-    #? 11 text {'new_name': 'ab'}
-    return ab()
+class C:
+    @staticmethod
+    def f(x):
+        #? 15 text {'new_name': 'ab'}
+        return ab(x)
 # -------------------------------------------------- in-nested-class
 class Outer:
     class Inner:
@@ -578,41 +575,31 @@ def f(a, b):
     return ab(a, b)
 # -------------------------------------------------- range-with-if
 def f(x):
-    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
     if x > 0:
-        result = x
-    else:
-        result = -x
-    return result
+        #? 15 text {'new_name': 'ab'}
+        return x * 2
+    return -1
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 def ab(x):
-    if x > 0:
-        result = x
-    else:
-        result = -x
-    return result
+    return x * 2
 
 
 def f(x):
-    #? 0 text {'new_name': 'ab', 'until_line': 4, 'until_column': 4}
-    result = ab(x)
-    return result
+    if x > 0:
+        #? 15 text {'new_name': 'ab'}
+        return ab(x)
+    return -1
 # -------------------------------------------------- range-with-for-loop
 def f(items):
-    #? 0 text {'new_name': 'ab', 'until_line': 5, 'until_column': 4}
-    total = 0
     for item in items:
-        total += item
-    return total
+        #? 15 text {'new_name': 'ab'}
+        return item * 2
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def ab(items):
-    total = 0
-    for item in items:
-        total += item
-    return total
+def ab(item):
+    return item * 2
 
 
 def f(items):
-    #? 0 text {'new_name': 'ab', 'until_line': 5, 'until_column': 4}
-    total = ab(items)
-    return total
+    for item in items:
+        #? 15 text {'new_name': 'ab'}
+        return ab(item)

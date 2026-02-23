@@ -285,19 +285,19 @@ y = [1, 2, 3]
 x = [1, 2, 3]
 y = x
 # -------------------------------------------------- nested-call
-#? 4 text {'new_name': 'x'}
+#? 8 text {'new_name': 'x'}
 y = foo(bar(baz(1)))
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-#? 4 text {'new_name': 'x'}
-x = foo(bar(baz(1)))
-y = x
+#? 8 text {'new_name': 'x'}
+x = bar(baz(1))
+y = foo(x)
 # -------------------------------------------------- method-chain
-#? 4 text {'new_name': 'x'}
+#? 4 text {'new_name': 'x', 'until_column': 11}
 y = foo.bar.baz(1)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-#? 4 text {'new_name': 'x'}
-x = foo.bar.baz(1)
-y = x
+#? 4 text {'new_name': 'x', 'until_column': 11}
+x = foo.bar
+y = x.baz(1)
 # -------------------------------------------------- chained-comparison
 #? 4 text {'new_name': 'x', 'until_column': 13}
 y = 1 < a < 10
