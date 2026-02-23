@@ -256,11 +256,13 @@ y = foo("hello")
 #? 8 text {'new_name': 'msg', 'until_column': 15}
 msg = "hello"
 y = foo(msg)
-# -------------------------------------------------- fstring-error
-#? 8 error {'new_name': 'x'}
-y = foo(f"val={a}")
+# -------------------------------------------------- fstring-extract
+#? 4 text {'new_name': 'x'}
+y = f"val={a}"
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-Cannot extract a "f-string"
+#? 4 text {'new_name': 'x'}
+x = f"val={a}"
+y = x
 # -------------------------------------------------- dict-literal
 #? 4 text {'new_name': 'x'}
 y = {1: 2, 3: 4}

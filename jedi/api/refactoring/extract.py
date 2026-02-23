@@ -211,7 +211,8 @@ def _remove_unwanted_expression_nodes(parent_node, pos, until_pos):
 
 def _is_not_extractable_syntax(node):
     return node.type == 'operator' and node.value != '...' \
-        or node.type == 'keyword' and node.value not in ('None', 'True', 'False')
+        or node.type == 'keyword' and node.value not in ('None', 'True', 'False') \
+        or node.type in ('fstring_start', 'fstring_end', 'fstring_string')
 
 
 def extract_function(inference_state, path, module_context, name, pos, until_pos):
