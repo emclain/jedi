@@ -29,6 +29,7 @@ from jedi.api.project import get_default_project, Project
 from jedi.api.errors import parso_to_jedi_errors
 from jedi.api import refactoring
 from jedi.api.refactoring.extract import extract_function, extract_variable
+from jedi.api.refactoring.introduce import introduce_parameter, introduce_field
 from jedi.inference import InferenceState
 from jedi.inference import imports
 from jedi.inference.references import find_references
@@ -696,6 +697,74 @@ class Script:
         """
         names = [d._name for d in self.get_references(line, column, include_builtins=True)]
         return refactoring.inline(self._inference_state, names)
+
+    @validate_line_column
+    def introduce_parameter(self, line, column, *, new_name=None):
+        """
+        Introduces a parameter for a variable that is defined inside a function.
+
+        The variable's assignment is removed and it is added as a new parameter
+        to the enclosing function with the original value as the default.
+
+        For example with the cursor on ``x``::
+
+            def foo():
+                x = 42
+                return x + 1
+
+        the code above will become::
+
+            def foo(x=42):
+                return x + 1
+
+        :param new_name: Optionally rename the parameter to this string.
+            If not provided, the variable's existing name is used.
+        :raises: :exc:`.RefactoringError`
+        :rtype: :class:`.Refactoring`
+        """
+        # Determine the name at the cursor
+        leaf = self._module_node.get_leaf_for_position(
+            (line, column), include_prefixes=True
+        )
+        if leaf is not None and leaf.type == 'name':
+            param_name = new_name if new_name is not None else leaf.value
+        else:
+            param_name = new_name if new_name is not None else ''
+        return introduce_parameter(
+            self._inference_state, self.path, self._module_node,
+            param_name, (line, column)
+        )
+
+    @validate_line_column
+    def introduce_field(self, line, column):
+        """
+        Introduces a field for a variable that is defined inside a method.
+
+        The local variable is converted to an instance attribute. The
+        assignment ``x = expr`` becomes ``self.x = expr``, and all references
+        to ``x`` within the method are replaced with ``self.x``.
+
+        For example with the cursor on ``x``::
+
+            class MyClass:
+                def foo(self):
+                    x = 42
+                    return x + 1
+
+        the code above will become::
+
+            class MyClass:
+                def foo(self):
+                    self.x = 42
+                    return self.x + 1
+
+        :raises: :exc:`.RefactoringError`
+        :rtype: :class:`.Refactoring`
+        """
+        return introduce_field(
+            self._inference_state, self.path, self._module_node,
+            (line, column)
+        )
 
 
 class Interpreter(Script):
