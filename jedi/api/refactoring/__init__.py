@@ -257,10 +257,10 @@ def inline(inference_state, names):
     changes[expr_stmt] = _remove_indent_of_prefix(expr_stmt.get_first_leaf().prefix)
     next_leaf = expr_stmt.get_next_leaf()
 
-    # Most of the time we have to remove the newline at the end of the
-    # statement, but if there's a comment we might not need to.
-    if next_leaf.prefix.strip(' \t') == '' \
-            and (next_leaf.type == 'newline' or next_leaf == ';'):
+    # Remove the newline (and any inline comment) at the end of the statement.
+    # Inline comments on the definition line belong to that line and are
+    # removed along with the definition.
+    if next_leaf.type == 'newline' or next_leaf == ';':
         changes[next_leaf] = ''
     return Refactoring(inference_state, file_to_node_changes)
 

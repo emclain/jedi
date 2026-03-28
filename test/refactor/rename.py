@@ -924,3 +924,16 @@ class Child(MyClass):
 -        super().__init__(x)
 +        super().setup(x)
          self.y = y
+# -------------------------------------------------- type-comment-preserved
+#? 0 {'new_name': 'items'}
+x = []  # type: List[int]
+use(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'items'}
+-x = []  # type: List[int]
+-use(x)
++items = []  # type: List[int]
++use(items)
