@@ -203,3 +203,17 @@ class MyClass:
         #? 8 text
         self.x: int = 42
         return self.x
+# -------------------------------------------------- variable-in-fstring
+class MyClass:
+    def foo(self):
+        #? 8 text
+        x = 'world'
+        msg = f'hello {x}'
+        return msg
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        #? 8 text
+        self.x = 'world'
+        msg = f'hello {self.x}'
+        return msg
