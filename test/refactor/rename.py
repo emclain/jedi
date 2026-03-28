@@ -279,6 +279,19 @@ x = [x for x in range(10)]
  #? 0 {'new_name': 'y'}
 -x = [x for x in range(10)]
 +y = [x for x in range(10)]
+# -------------------------------------------------- comprehension-iterable-outer-var
+#? 0 {'new_name': 'data'}
+items = [1, 2, 3]
+result = [items for items in items]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'data'}
+-items = [1, 2, 3]
+-result = [items for items in items]
++data = [1, 2, 3]
++result = [items for items in data]
 # -------------------------------------------------- global-from-function
 x_var = 1
 def f():
@@ -555,6 +568,34 @@ other = list(range(3))
 +    lst.append(1)
 +    return lst
  other = list(range(3))
+# -------------------------------------------------- comprehension-iterable-outer-var
+#? 0 {'new_name': 'items'}
+x = [1, 2, 3]
+result = [x for x in x]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'items'}
+-x = [1, 2, 3]
+-result = [x for x in x]
++items = [1, 2, 3]
++result = [x for x in items]
+# -------------------------------------------------- class-body-module-var
+#? 0 {'new_name': 'module_val'}
+module_var = 42
+class Foo:
+    bar = module_var + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'module_val'}
+-module_var = 42
++module_val = 42
+ class Foo:
+-    bar = module_var + 1
++    bar = module_val + 1
 # -------------------------------------------------- nonlocal-sibling-closures
 def outer():
     x = 1
