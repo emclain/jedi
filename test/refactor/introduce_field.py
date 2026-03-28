@@ -113,6 +113,20 @@ def a():
         b = 7
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a field: the variable is not inside a function
+# -------------------------------------------------- deeply-nested-class
+class Outer:
+    class Inner:
+        def foo(self):
+            #? 12 text
+            x = 1
+            return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class Outer:
+    class Inner:
+        def foo(self):
+            #? 12 text
+            self.x = 1
+            return self.x
 # -------------------------------------------------- inline-comment-on-assignment
 class MyClass:
     def foo(self):
