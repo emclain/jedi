@@ -95,7 +95,9 @@ script.refactor_type(line_nr, column, **kwargs)
 
 ## Multi-Agent Parallelism
 
-When multiple instances are running from the same checkout, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: claim with `bd update --claim`, isolate with `git worktree`, push via `work/<id>:refactoring-test-coverage` with a retry loop — never touch the shared checkout's local `refactoring-test-coverage`.
+When multiple instances are running from the same checkout, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: run `bash scripts/agent-start.sh` to bootstrap, claim with `bd update --claim`, isolate with `git worktree`, push via `work/<id>:refactoring-test-coverage` with a retry loop — never touch the shared checkout's local `refactoring-test-coverage`.
+
+**Each agent works on exactly one issue, then stops.**
 
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->

@@ -8,12 +8,38 @@ Multiple Claude instances can work in parallel from the same checkout without co
 - **Worktrees** give each instance its own working tree and index so file edits never interfere
 - **The remote** is the only coordination point for git — instances never share a local branch
 
+## One Issue Per Session
+
+Each agent instance should claim and complete **exactly one issue**, then stop. Do not loop back to claim another. This keeps each agent's scope small and avoids long-running sessions that accumulate stale state or conflict with other instances.
+
 ## Procedure
 
 ### 1. Startup (in the shared checkout)
 
+The preferred path is the startup script, which handles all guard conditions automatically:
+
 ```bash
 cd /workspace/dev/jedi
+bash scripts/agent-start.sh
+```
+
+If the script prints a worktree path, `cd` there and continue. If it prints "No available work", stop.
+
+Manual equivalent (for reference or debugging):
+
+```bash
+cd /workspace/dev/jedi
+
+# Ensure bd is initialized
+if ! bd list &>/dev/null; then
+  bd init --force --prefix jedi
+  bd import
+fi
+
+# Ensure venv exists and is activated
+[ -d .venv ] || python3 -m venv .venv
+source .venv/bin/activate
+pip install -q -e '.[testing]'
 
 # Pull latest
 git pull origin refactoring-test-coverage
@@ -30,6 +56,11 @@ done
 [ -z "$claimed" ] && echo "No available work." && exit 0
 
 # Create an isolated worktree + branch for this issue
+# If a stale worktree exists from a crashed prior run, remove it first
+if [ -d "../jedi-$claimed" ]; then
+  git worktree remove --force "../jedi-$claimed" 2>/dev/null || true
+  git branch -D "work/$claimed" 2>/dev/null || true
+fi
 git worktree add ../jedi-$claimed -b work/$claimed origin/refactoring-test-coverage
 cd ../jedi-$claimed
 ```
@@ -94,6 +125,18 @@ cd /workspace/dev/jedi
 git worktree remove ../jedi-$claimed
 git branch -d work/$claimed
 ```
+
+### 4. Reflect on Startup Stumbling Blocks
+
+Before stopping, think back on any friction you hit during startup and document or fix it:
+
+- If `scripts/agent-start.sh` failed or was incomplete, improve it.
+- If the setup instructions in AGENTS.md were wrong or missing a step, update them.
+- If a new category of obstacle appeared, add it to the script's guard logic.
+
+The goal: the next agent should be able to run `bash scripts/agent-start.sh` and end up in a worktree ready to work with no manual intervention.
+
+**Stop after one issue.** Do not loop back to claim another.
 
 ## Beads State Persistence
 
