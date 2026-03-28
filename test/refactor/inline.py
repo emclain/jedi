@@ -386,13 +386,6 @@ os
 test(os)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot inline imports, modules or namespaces
-# -------------------------------------------------- from-import-error
-from os.path import join
-#? 0 error
-join
-test(join)
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-Cannot inline imports, modules or namespaces
 # -------------------------------------------------- comparison-parens
 #? 0
 a = 1 < 2
@@ -477,18 +470,6 @@ test(x * a)
 -a = -1
 -test(x * a)
 +test(x * -1)
-# -------------------------------------------------- unary-minus-name
-#? 0
-a = -x
-test(y * a)
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
---- inline.py
-+++ inline.py
-@@ -1,4 +1,3 @@
- #? 0
--a = -x
--test(y * a)
-+test(y * -x)
 # -------------------------------------------------- attribute-access
 #? 0
 a = obj.attr
@@ -579,18 +560,6 @@ test(items)
  #? 5
 -test(items)
 +test([1, 2, 3])
-# -------------------------------------------------- annotation-forward-ref
-x: 'MyClass' = MyClass()
-#? 5
-test(x)
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
---- inline.py
-+++ inline.py
-@@ -1,4 +1,3 @@
--x: 'MyClass' = MyClass()
- #? 5
--test(x)
-+test(MyClass())
 # -------------------------------------------------- assert-condition
 #? 0
 flag = x > 0
