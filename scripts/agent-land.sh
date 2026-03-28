@@ -9,6 +9,23 @@
 
 set -euo pipefail
 
+# Guard: git refuses to operate in directories owned by a different user unless
+# the path is explicitly listed in safe.directory.  Add both the worktree and
+# the main checkout proactively so every subsequent git call in this script works.
+_add_safe_dirs() {
+  local dir
+  for dir in "$@"; do
+    git config --global --add safe.directory "$dir" 2>/dev/null || true
+  done
+}
+if ! git rev-parse --git-common-dir &>/dev/null; then
+  _add_safe_dirs "$(pwd)" "$(realpath "$(pwd)/..")"
+  if ! git rev-parse --git-common-dir &>/dev/null; then
+    echo "ERROR: git ownership check failed even after adding safe.directory." >&2
+    exit 1
+  fi
+fi
+
 claimed="${1:-${CLAIMED_ID:-}}"
 if [ -z "$claimed" ]; then
   echo "ERROR: pass the issue id as \$1 or set CLAIMED_ID (source .agent-env)." >&2
@@ -24,6 +41,10 @@ else
   MAIN_CHECKOUT="$(git rev-parse --show-toplevel)"
 fi
 WORKTREE_ROOT="$(git rev-parse --show-toplevel)"
+
+# Ensure both paths are in safe.directory (idempotent; covers the case where
+# the early guard above added "$(pwd)" before we resolved the canonical paths).
+_add_safe_dirs "$MAIN_CHECKOUT" "$WORKTREE_ROOT"
 
 # Helper: run a bd command; if it fails, refresh the server port file and retry once.
 # This handles the case where the Dolt server restarted and the port changed.
