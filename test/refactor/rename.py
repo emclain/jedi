@@ -742,3 +742,16 @@ print(x)
 +count = 0
 +count += 1
 +print(count)
+# -------------------------------------------------- star-unpack-target
+#? 4 {'new_name': 'rest'}
+a, *b, c = [1, 2, 3, 4, 5]
+print(b)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 4 {'new_name': 'rest'}
+-a, *b, c = [1, 2, 3, 4, 5]
+-print(b)
++a, *rest, c = [1, 2, 3, 4, 5]
++print(rest)
