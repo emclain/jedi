@@ -241,3 +241,12 @@ def f(a, b, /):
 def f(a, b, /, x=1):
     #? 4 text
     return a + b + x
+# -------------------------------------------------- async-function
+async def foo():
+    #? 4 text
+    x = 42
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+async def foo(x=42):
+    #? 4 text
+    return x
