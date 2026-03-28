@@ -545,6 +545,27 @@ for item in range(10):
 -    print(item)
 +for element in range(10):
 +    print(element)
+# -------------------------------------------------- for-loop-var-shadows-prior-assignment
+# Deviation: renames pre-loop 'i = 0' too; all bindings in same scope are renamed
+i = 0
+#? 4 {'new_name': 'j'}
+for i in range(10):
+    print(i)
+print(i)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ # Deviation: renames pre-loop 'i = 0' too; all bindings in same scope are renamed
+-i = 0
++j = 0
+ #? 4 {'new_name': 'j'}
+-for i in range(10):
+-    print(i)
+-print(i)
++for j in range(10):
++    print(j)
++print(j)
 # -------------------------------------------------- with-as-var
 #? 19 {'new_name': 'handle'}
 with open('f') as fh:
