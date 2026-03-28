@@ -531,3 +531,15 @@ except exc_type as e:
 -except exc_type as e:
 +except ValueError as e:
      handle(e)
+# -------------------------------------------------- keyword-arg-value
+#? 0
+fn = str
+result = fn(x, base=fn)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-fn = str
+-result = fn(x, base=fn)
++result = str(x, base=str)
