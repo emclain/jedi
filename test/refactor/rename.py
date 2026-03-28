@@ -802,3 +802,23 @@ def bar():
      pass
  def bar():
      pass
+# -------------------------------------------------- fstring-nested-expression
+#? 0 {'new_name': 'value'}
+x = 1
+precision = 2
+result = f"result={f'{x:.{precision}f}'}"
+print(x)
+print(precision)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ #? 0 {'new_name': 'value'}
+-x = 1
++value = 1
+ precision = 2
+-result = f"result={f'{x:.{precision}f}'}"
+-print(x)
++result = f"result={f'{value:.{precision}f}'}"
++print(value)
+ print(precision)
