@@ -685,3 +685,20 @@ def handle(cmd, extra):
     match get_subject(cmd, extra):
         case 'quit':
             pass
+# -------------------------------------------------- with-multiple-context-managers
+def f():
+    with open('a') as r, open('b', 'w') as w:
+#? 8 text {'new_name': 'ab', 'until_line': 5}
+        data = r.read()
+        w.write(data)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(r, w):
+    data = r.read()
+    w.write(data)
+    return data
+
+
+def f():
+    with open('a') as r, open('b', 'w') as w:
+#? 8 text {'new_name': 'ab', 'until_line': 5}
+        data = ab(r, w)
