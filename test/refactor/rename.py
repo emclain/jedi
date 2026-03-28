@@ -428,6 +428,7 @@ except ValueError as err:
 +except ValueError as exc:
 +    print(exc)
 # -------------------------------------------------- except-as-var-shadows-outer
+# Deviation from PEP 3110: renames outer x too (should only rename within except suite)
 x = 1
 try:
     pass
@@ -438,7 +439,8 @@ print(x)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 --- rename.py
 +++ rename.py
-@@ -1,8 +1,8 @@
+@@ -1,9 +1,9 @@
+ # Deviation from PEP 3110: renames outer x too (should only rename within except suite)
 -x = 1
 +exc = 1
  try:
