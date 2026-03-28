@@ -805,3 +805,16 @@ print(b)
 +x = b = 1
 +print(x)
  print(b)
+# -------------------------------------------------- annotated-no-value
+#? 0 {'new_name': 'y'}
+x: int
+print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'y'}
+-x: int
+-print(x)
++y: int
++print(y)
