@@ -217,3 +217,27 @@ class MyClass:
         self.x = 'world'
         msg = f'hello {self.x}'
         return msg
+# -------------------------------------------------- cls-param-init-subclass
+class MyClass:
+    def __init_subclass__(cls, **kwargs):
+        #? 8 text
+        x = 42
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def __init_subclass__(cls, **kwargs):
+        #? 8 text
+        cls.x = 42
+        return cls.x
+# -------------------------------------------------- cls-param-class-getitem
+class MyClass:
+    def __class_getitem__(cls, item):
+        #? 8 text
+        x = item
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def __class_getitem__(cls, item):
+        #? 8 text
+        cls.x = item
+        return cls.x
