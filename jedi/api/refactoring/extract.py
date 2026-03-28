@@ -308,7 +308,13 @@ def extract_function(inference_state, path, module_context, name, pos, until_pos
 
 
 def _contains_await(nodes):
-    """Check if any of the nodes contain an await expression."""
+    """Check if any of the nodes contain an await expression.
+
+    In parso, 'await expr' is represented as an atom_expr whose first child
+    is a keyword leaf with value 'await' (e.g. atom_expr([<Keyword: await>,
+    <Name: fut>])). There is no 'await_expr' node type. The 'await' keyword
+    is therefore found via the leaf (AttributeError) branch below.
+    """
     for node in nodes:
         try:
             children = node.children
@@ -316,8 +322,6 @@ def _contains_await(nodes):
             if node.type == 'keyword' and node.value == 'await':
                 return True
         else:
-            if node.type == 'await_expr':
-                return True
             if _contains_await(children):
                 return True
     return False
