@@ -139,6 +139,20 @@ class MyClass:
         #? 8 text
         self.list = [1, 2, 3]
         return self.list
+# -------------------------------------------------- variable-in-loop-body
+class MyClass:
+    def foo(self):
+        for i in range(3):
+            #? 12 text
+            x = i * 2
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        for i in range(3):
+            #? 12 text
+            self.x = i * 2
+        return self.x
 # -------------------------------------------------- inline-comment-on-assignment
 class MyClass:
     def foo(self):
