@@ -519,6 +519,27 @@ def f():
     except:
         #? 15 text {'new_name': 'ab'}
         return ab(x)
+# -------------------------------------------------- try-except-range
+def f(data):
+    #? 4 text {'new_name': 'extracted', 'until_line': 6, 'until_column': 21}
+    try:
+        x = parse(data)
+    except ValueError:
+        x = default()
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def extracted(parse, data, default):
+    try:
+        x = parse(data)
+    except ValueError:
+        x = default()
+    return x
+
+
+def f(data):
+    #? 4 text {'new_name': 'extracted', 'until_line': 6, 'until_column': 21}
+    x = extracted(parse, data, default)
+    return x
 # -------------------------------------------------- with-statement-range
 def f():
     with open('f') as fh:
