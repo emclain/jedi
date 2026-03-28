@@ -514,3 +514,24 @@ fb
  #? 0 {'new_name': 'alias'}
 -fb
 +alias
+# -------------------------------------------------- nonlocal-rename
+x = 10
+def inner():
+    nonlocal x
+    #? 4 {'new_name': 'y'}
+    x = 20
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+-x = 10
++y = 10
+ def inner():
+-    nonlocal x
++    nonlocal y
+     #? 4 {'new_name': 'y'}
+-    x = 20
+-    return x
++    y = 20
++    return y

@@ -61,6 +61,7 @@ def _find_defining_names(module_context, tree_name):
         ))
 
     found_names |= set(_find_global_variables(found_names, tree_name.value))
+    found_names |= set(_find_nonlocal_variables(module_context, found_names, tree_name.value))
     for name in list(found_names):
         if name.api_type == 'param' or name.tree_name is None \
                 or name.tree_name.parent.type == 'trailer':
@@ -109,6 +110,51 @@ def _find_global_variables(names, search_name):
                 yield global_name
                 c = module_context.create_context(global_name.tree_name)
                 yield from _add_names_in_same_context(c, global_name.string_name)
+
+
+def _find_nonlocal_variables(module_context, names, search_name):
+    """
+    Handle connections via 'nonlocal' declarations in both directions:
+    - inner function assignment -> nonlocal declaration -> outer scope name
+    - outer scope name -> nonlocal declaration -> inner function names
+    """
+    found_tree_names = {n.tree_name for n in names if n.tree_name is not None}
+    if not found_tree_names:
+        return
+
+    # Get root module node to scan for nonlocal declarations
+    root = next(iter(found_tree_names))
+    while root.parent is not None:
+        root = root.parent
+
+    nonlocal_stmts = [
+        used_name
+        for used_name in root.get_used_names().get(search_name, [])
+        if used_name.parent.type == 'nonlocal_stmt'
+    ]
+
+    if not nonlocal_stmts:
+        return
+
+    for name in list(names):
+        if name.tree_name is None or name.tree_name.parent.type == 'nonlocal_stmt':
+            continue
+
+        tree_name = name.tree_name
+        funcdef = tree_name.search_ancestor('funcdef', 'classdef', 'lambdef')
+
+        if funcdef is not None:
+            # Name is inside a function: find nonlocal decl in the same funcdef
+            for nl_name in nonlocal_stmts:
+                if nl_name.search_ancestor('funcdef', 'classdef', 'lambdef') == funcdef:
+                    yield from _find_names(module_context, nl_name)
+                    break
+        else:
+            # Name is in outer scope: find nonlocal decls whose goto() points here
+            for nl_name in nonlocal_stmts:
+                nl_name_obj = module_context.create_name(nl_name)
+                if any(g.tree_name in found_tree_names for g in nl_name_obj.goto()):
+                    yield from _find_names(module_context, nl_name)
 
 
 def find_references(module_context, tree_name, only_in_module=False):
