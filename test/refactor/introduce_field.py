@@ -241,3 +241,41 @@ class MyClass:
         #? 8 text
         cls.x = item
         return cls.x
+# -------------------------------------------------- variable-before-try-used-in-try-except
+class MyClass:
+    def foo(self):
+        #? 8 text
+        x = 0
+        try:
+            x = compute()
+        except ValueError:
+            x = -1
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        #? 8 text
+        self.x = 0
+        try:
+            self.x = compute()
+        except ValueError:
+            self.x = -1
+        return self.x
+# -------------------------------------------------- variable-assigned-in-except
+class MyClass:
+    def foo(self):
+        try:
+            risky()
+        except RuntimeError:
+            #? 12 text
+            x = default()
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        try:
+            risky()
+        except RuntimeError:
+            #? 12 text
+            self.x = default()
+        return self.x
