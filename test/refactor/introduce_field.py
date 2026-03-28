@@ -127,6 +127,18 @@ class Outer:
             #? 12 text
             self.x = 1
             return self.x
+# -------------------------------------------------- builtin-shadowing-name
+class MyClass:
+    def foo(self):
+        #? 8 text
+        list = [1, 2, 3]
+        return list
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        #? 8 text
+        self.list = [1, 2, 3]
+        return self.list
 # -------------------------------------------------- inline-comment-on-assignment
 class MyClass:
     def foo(self):
