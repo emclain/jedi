@@ -12,6 +12,26 @@ EXPRESSION_PARTS = (
     'expr xor_expr and_expr shift_expr arith_expr term factor power atom_expr'
 ).split()
 
+# Precedence levels for Python expression node types (higher = binds tighter).
+# Atoms (number, string, name, keyword, fstring, atom) have the highest
+# precedence and are represented by a sentinel value above all entries here.
+_PRECEDENCE = {
+    'or_test': 1,
+    'and_test': 2,
+    'not_test': 3,
+    'comparison': 4,
+    'expr': 5,        # bitwise |
+    'xor_expr': 6,    # bitwise ^
+    'and_expr': 7,    # bitwise &
+    'shift_expr': 8,  # << >>
+    'arith_expr': 9,  # + -
+    'term': 10,       # * / // % @
+    'factor': 11,     # unary +, -, ~
+    'power': 12,      # **
+    'atom_expr': 13,  # attribute access, subscript, call
+}
+_ATOM_PRECEDENCE = 14  # number, string, name, keyword, fstring, atom
+
 
 class ChangedFile:
     def __init__(self, inference_state, from_path, to_path,
@@ -219,13 +239,14 @@ def inline(inference_state, names):
         tree_name = name.tree_name
         path = name.get_root_context().py__file__()
         s = replace_code
+        context_type = tree_name.parent.type
         needs_parens = (
             rhs.type == 'testlist_star_expr'
-            or tree_name.parent.type in EXPRESSION_PARTS
-            or tree_name.parent.type == 'trailer'
+            or context_type in EXPRESSION_PARTS
+            or context_type == 'trailer'
             and tree_name.parent.get_next_sibling() is not None
         )
-        if needs_parens and not _is_safe_without_parens(rhs):
+        if needs_parens and not _is_safe_without_parens(rhs, context_type):
             s = '(' + replace_code + ')'
 
         of_path = file_to_node_changes.setdefault(path, {})
@@ -253,25 +274,49 @@ def inline(inference_state, names):
     return Refactoring(inference_state, file_to_node_changes)
 
 
-def _is_safe_without_parens(rhs):
+def _is_safe_without_parens(rhs, context_type):
     """
-    Returns True if the RHS expression is safe to inline without adding
-    parentheses. This is the case for simple atoms (numbers, strings, names,
-    keywords like None/True/False) and for expressions already wrapped in
-    parentheses/brackets/braces.
+    Returns True if the RHS expression can be inlined into *context_type*
+    without adding wrapping parentheses.
+
+    Safety is determined by comparing precedence levels: if the rhs expression
+    binds at least as tightly as the context it is placed into, no parentheses
+    are needed.  Atoms (number, string, name, keyword, fstring) and delimited
+    literals (parenthesised expressions, list/dict/set displays) always have
+    the highest precedence.  Compound expression types use the ``_PRECEDENCE``
+    table, which mirrors Python's operator-precedence grammar.
+
+    Uses parso's node type strings directly rather than duck-typing via
+    ``hasattr``: non-leaf nodes have ``.children``; leaf nodes have ``.value``.
     """
-    # Simple leaf nodes are always safe
-    if rhs.type in ('number', 'string', 'keyword', 'fstring'):
-        return True
-    # A name is a simple atom, safe without parens
-    if rhs.type == 'name':
-        return True
-    # An atom that starts with (, [, or { is already delimited
-    if rhs.type == 'atom' and hasattr(rhs, 'children') and rhs.children:
-        first_child = rhs.children[0]
-        if hasattr(first_child, 'value') and first_child.value in ('(', '[', '{'):
-            return True
-    return False
+    # Tuples (testlist_star_expr) always need parens — handled at call site.
+
+    # Determine rhs precedence.
+    if rhs.type in ('number', 'string', 'keyword', 'fstring', 'name'):
+        rhs_prec = _ATOM_PRECEDENCE
+    elif rhs.type == 'atom':
+        # atom covers parenthesised expressions ( ), list displays [ ], and
+        # dict/set displays { }.  The delimiters themselves make them safe.
+        first_child = rhs.children[0]  # always a Leaf for atom
+        if first_child.value in ('(', '[', '{'):
+            rhs_prec = _ATOM_PRECEDENCE
+        else:
+            # Covers the ellipsis literal '...' and similar edge cases;
+            # treat conservatively.
+            return False
+    else:
+        rhs_prec = _PRECEDENCE.get(rhs.type)
+        if rhs_prec is None:
+            # Unknown node type — fall back to the safe choice of adding parens.
+            return False
+
+    # Determine context precedence.
+    context_prec = _PRECEDENCE.get(context_type, _ATOM_PRECEDENCE)
+
+    # The rhs is safe when it binds strictly tighter than the context.
+    # Equal precedence is NOT safe for non-associative operators (e.g.
+    # ``a - (b - c)`` ≠ ``a - b - c``), so we require strict inequality.
+    return rhs_prec > context_prec
 
 
 def _remove_indent_of_prefix(prefix):

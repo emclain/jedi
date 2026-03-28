@@ -338,7 +338,7 @@ test(a and b)
  #? 0
 -a = not True
 -test(a and b)
-+test((not True) and b)
++test(not True and b)
 # -------------------------------------------------- conditional-expr
 #? 0
 a = x if cond else y
@@ -404,7 +404,7 @@ test(a and b)
  #? 0
 -a = 1 < 2
 -test(a and b)
-+test((1 < 2) and b)
++test(1 < 2 and b)
 # -------------------------------------------------- fstring-var
 #? 0
 name = 'world'
@@ -465,3 +465,51 @@ test(a)
 -a = r'\n\t'
 -test(a)
 +test(r'\n\t')
+# -------------------------------------------------- unary-minus-literal
+#? 0
+a = -1
+test(x * a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = -1
+-test(x * a)
++test(x * -1)
+# -------------------------------------------------- unary-minus-name
+#? 0
+a = -x
+test(y * a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = -x
+-test(y * a)
++test(y * -x)
+# -------------------------------------------------- attribute-access
+#? 0
+a = obj.attr
+test(x * a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = obj.attr
+-test(x * a)
++test(x * obj.attr)
+# -------------------------------------------------- subscript
+#? 0
+a = lst[0]
+test(x * a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = lst[0]
+-test(x * a)
++test(x * lst[0])
