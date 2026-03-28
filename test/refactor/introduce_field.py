@@ -261,6 +261,18 @@ class MyClass:
         except ValueError:
             self.x = -1
         return self.x
+# -------------------------------------------------- in-init-method
+class MyClass:
+    def __init__(self):
+        #? 8 text
+        x = 10
+        self.value = x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def __init__(self):
+        #? 8 text
+        self.x = 10
+        self.value = self.x + 1
 # -------------------------------------------------- variable-assigned-in-except
 class MyClass:
     def foo(self):
