@@ -30,3 +30,6 @@
 {"id":"int-a6066f7c","kind":"field_change","created_at":"2026-03-28T07:42:44.516067978Z","actor":"Evan McLain","issue_id":"jedi-amt","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
 {"id":"int-6f1c5dce","kind":"field_change","created_at":"2026-03-28T07:43:49.975691699Z","actor":"Evan McLain","issue_id":"jedi-ryy","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
 {"id":"int-cb238cdf","kind":"field_change","created_at":"2026-03-28T07:44:49.789767839Z","actor":"Evan McLain","issue_id":"jedi-3cc","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-309e70de","kind":"field_change","created_at":"2026-03-28T07:45:54.562945101Z","actor":"Evan McLain","issue_id":"jedi-nff","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-1fe8130e","kind":"field_change","created_at":"2026-03-28T07:45:56.022909644Z","actor":"Evan McLain","issue_id":"jedi-5tm","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
+{"id":"int-b4182862","kind":"field_change","created_at":"2026-03-28T07:46:23.557933771Z","actor":"Evan McLain","issue_id":"jedi-3cc","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
