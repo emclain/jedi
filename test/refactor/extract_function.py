@@ -188,6 +188,32 @@ class Ya():
     a = 3
     #? 11 text {'new_name': 'f'}
     c = f(a)
+# -------------------------------------------------- in-class-pass-1
+class Empty:
+    pass
+    #? 8 text {'new_name': 'f'}
+    x = compute()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def f(compute):
+    return compute()
+
+
+class Empty:
+    pass
+    #? 8 text {'new_name': 'f'}
+    x = f(compute)
+# -------------------------------------------------- in-class-single-stmt
+class Foo:
+    #? 13 text {'new_name': 'f'}
+    result = expensive_computation(a, b)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def f(expensive_computation, a, b):
+    return expensive_computation(a, b)
+
+
+class Foo:
+    #? 13 text {'new_name': 'f'}
+    result = f(expensive_computation, a, b)
 # -------------------------------------------------- in-closure
 def x(z):
     def y(x):
