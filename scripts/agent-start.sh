@@ -107,6 +107,13 @@ if [ -d "$worktree" ]; then
 fi
 
 git worktree add "$worktree" -b "work/$claimed" origin/refactoring-test-coverage
+
+# Git worktrees do NOT inherit submodule contents — the directories exist but
+# are empty. Initialize the typeshed submodule (required for tests) now so
+# agents don't hit a confusing FileNotFoundError mid-run.
+echo "Initializing submodules in worktree..."
+git -C "$worktree" submodule update --init jedi/third_party/typeshed
+
 echo "Worktree created at: $worktree_abs"
 
 # ── 8. Copy venv activation hint ─────────────────────────────────────────────

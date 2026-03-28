@@ -62,6 +62,10 @@ if [ -d "../jedi-$claimed" ]; then
   git branch -D "work/$claimed" 2>/dev/null || true
 fi
 git worktree add ../jedi-$claimed -b work/$claimed origin/refactoring-test-coverage
+
+# Worktrees do NOT inherit submodule contents — initialize typeshed or tests fail
+git -C ../jedi-$claimed submodule update --init jedi/third_party/typeshed
+
 cd ../jedi-$claimed
 ```
 
