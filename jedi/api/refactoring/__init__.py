@@ -208,27 +208,20 @@ def inline(inference_state, names):
 
     expr_stmt = tree_name.get_definition()
     if expr_stmt.type != 'expr_stmt':
-        type_ = dict(
-            funcdef='function',
-            classdef='class',
-        ).get(expr_stmt.type, expr_stmt.type)
+        type_ = {'funcdef': 'function', 'classdef': 'class'}.get(expr_stmt.type, expr_stmt.type)
         raise RefactoringError("Cannot inline a %s" % type_)
 
     if len(expr_stmt.get_defined_names(include_setitem=True)) > 1:
         raise RefactoringError("Cannot inline a statement with multiple definitions")
     first_child = expr_stmt.children[1]
-    if first_child.type == 'annassign' and len(first_child.children) == 4:
+    if first_child.type == 'annassign':
+        if len(first_child.children) != 4:
+            raise RefactoringError('Cannot inline a statement that is defined by an annotation')
         first_child = first_child.children[2]
     if first_child != '=':
-        if first_child.type == 'annassign':
-            raise RefactoringError(
-                'Cannot inline a statement that is defined by an annotation'
-            )
-        else:
-            raise RefactoringError(
-                'Cannot inline a statement with "%s"'
-                % first_child.get_code(include_prefix=False)
-            )
+        raise RefactoringError(
+            'Cannot inline a statement with "%s"' % first_child.get_code(include_prefix=False)
+        )
 
     rhs = expr_stmt.get_rhs()
     replace_code = rhs.get_code(include_prefix=False)
@@ -240,26 +233,24 @@ def inline(inference_state, names):
         path = name.get_root_context().py__file__()
         s = replace_code
         context_type = tree_name.parent.type
-        needs_parens = (
-            rhs.type == 'testlist_star_expr'
-            or context_type in EXPRESSION_PARTS
-            or context_type == 'trailer'
-            and tree_name.parent.get_next_sibling() is not None
-        )
-        if needs_parens and not _is_safe_without_parens(rhs, context_type):
-            s = '(' + replace_code + ')'
+        if (rhs.type == 'testlist_star_expr'
+                or context_type in EXPRESSION_PARTS
+                or context_type == 'trailer'
+                and tree_name.parent.get_next_sibling() is not None):
+            if not _is_safe_without_parens(rhs, context_type):
+                s = '(' + replace_code + ')'
 
         of_path = file_to_node_changes.setdefault(path, {})
 
-        n = tree_name
-        prefix = n.prefix
-        par = n.parent
+        node = tree_name
+        prefix = tree_name.prefix
+        par = tree_name.parent
         if par.type == 'trailer' and par.children[0] == '.':
             prefix = par.parent.children[0].prefix
-            n = par
-            for some_node in par.parent.children[:par.parent.children.index(par)]:
-                of_path[some_node] = ''
-        of_path[n] = prefix + s
+            node = par
+            for sibling in par.parent.children[:par.parent.children.index(par)]:
+                of_path[sibling] = ''
+        of_path[node] = prefix + s
 
     path = definitions[0].get_root_context().py__file__()
     changes = file_to_node_changes.setdefault(path, {})
@@ -276,46 +267,26 @@ def inline(inference_state, names):
 
 def _is_safe_without_parens(rhs, context_type):
     """
-    Returns True if the RHS expression can be inlined into *context_type*
-    without adding wrapping parentheses.
-
-    Safety is determined by comparing precedence levels: if the rhs expression
-    binds at least as tightly as the context it is placed into, no parentheses
-    are needed.  Atoms (number, string, name, keyword, fstring) and delimited
-    literals (parenthesised expressions, list/dict/set displays) always have
-    the highest precedence.  Compound expression types use the ``_PRECEDENCE``
-    table, which mirrors Python's operator-precedence grammar.
-
-    Uses parso's node type strings directly rather than duck-typing via
-    ``hasattr``: non-leaf nodes have ``.children``; leaf nodes have ``.value``.
+    Returns True if *rhs* binds strictly tighter than *context_type*, so no
+    wrapping parentheses are needed.  Equal precedence is NOT safe because
+    Python's binary operators are not all associative (e.g. ``a-(b-c)`` ≠
+    ``a-b-c``).  Tuples (testlist_star_expr) always need parens — handled at
+    call site.
     """
-    # Tuples (testlist_star_expr) always need parens — handled at call site.
-
-    # Determine rhs precedence.
     if rhs.type in ('number', 'string', 'keyword', 'fstring', 'name'):
         rhs_prec = _ATOM_PRECEDENCE
     elif rhs.type == 'atom':
-        # atom covers parenthesised expressions ( ), list displays [ ], and
-        # dict/set displays { }.  The delimiters themselves make them safe.
-        first_child = rhs.children[0]  # always a Leaf for atom
-        if first_child.value in ('(', '[', '{'):
+        # parenthesised/list/dict/set — delimiters make them self-contained
+        if rhs.children[0].value in ('(', '[', '{'):
             rhs_prec = _ATOM_PRECEDENCE
         else:
-            # Covers the ellipsis literal '...' and similar edge cases;
-            # treat conservatively.
-            return False
+            return False  # e.g. ellipsis literal — treat conservatively
     else:
         rhs_prec = _PRECEDENCE.get(rhs.type)
         if rhs_prec is None:
-            # Unknown node type — fall back to the safe choice of adding parens.
-            return False
+            return False  # unknown node type — add parens to be safe
 
-    # Determine context precedence.
     context_prec = _PRECEDENCE.get(context_type, _ATOM_PRECEDENCE)
-
-    # The rhs is safe when it binds strictly tighter than the context.
-    # Equal precedence is NOT safe for non-associative operators (e.g.
-    # ``a - (b - c)`` ≠ ``a - b - c``), so we require strict inequality.
     return rhs_prec > context_prec
 
 
