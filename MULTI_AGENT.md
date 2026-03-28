@@ -126,7 +126,7 @@ done
 
 # Clean up worktree
 cd /workspace/dev/jedi
-git worktree remove ../jedi-$claimed
+git worktree remove --force ../jedi-$claimed  # --force needed because worktree contains submodule
 git branch -d work/$claimed
 ```
 
