@@ -103,6 +103,10 @@ bd close <id>         # Complete work
 bd sync               # Sync with git
 ```
 
+## Multi-Agent Parallelism
+
+When multiple instances are running from the same checkout, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: claim with `bd update --claim`, isolate with `git worktree`, push via `work/<id>:master` with a retry loop — never touch the shared checkout's local `master`.
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
