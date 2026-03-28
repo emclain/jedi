@@ -726,3 +726,19 @@ class Foo:
 +    @value.setter
 +    def value(self, v):
          self._x = v
+# -------------------------------------------------- augmented-assignment-target
+#? 0 {'new_name': 'count'}
+x = 0
+x += 1
+print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'count'}
+-x = 0
+-x += 1
+-print(x)
++count = 0
++count += 1
++print(count)
