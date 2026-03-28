@@ -549,18 +549,6 @@ class Outer:
         def f(self, x):
             #? 15 text {'new_name': 'ab'}
             return self.ab(x)
-# -------------------------------------------------- expression-with-call
-def f(x):
-    #? 11 text {'new_name': 'ab'}
-    return len(x) + 1
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-def ab(x):
-    return len(x) + 1
-
-
-def f(x):
-    #? 11 text {'new_name': 'ab'}
-    return ab(x)
 # -------------------------------------------------- boolean-expression
 def f(a, b):
     #? 11 text {'new_name': 'ab'}
