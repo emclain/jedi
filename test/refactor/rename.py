@@ -718,3 +718,43 @@ print(value)
 +renamed_value = 42
 +result = f"{renamed_value=}"
 +print(renamed_value)
+# -------------------------------------------------- property-setter-rename
+class Foo:
+    @property
+    #? 8 {'new_name': 'value'}
+    def x(self):
+        return self._x
+    @x.setter
+    def x(self, v):
+        self._x = v
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,9 +1,9 @@
+ class Foo:
+     @property
+     #? 8 {'new_name': 'value'}
+-    def x(self):
++    def value(self):
+         return self._x
+-    @x.setter
+-    def x(self, v):
++    @value.setter
++    def value(self, v):
+         self._x = v
+# -------------------------------------------------- augmented-assignment-target
+#? 0 {'new_name': 'count'}
+x = 0
+x += 1
+print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'count'}
+-x = 0
+-x += 1
+-print(x)
++count = 0
++count += 1
++print(count)
