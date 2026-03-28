@@ -633,3 +633,17 @@ async def process():
     #? 15 text {'new_name': 'helper'}
     data = await helper(do_work)
     return data + 1
+# -------------------------------------------------- async-await-bare
+async def process(fut):
+    #? 15 text {'new_name': 'helper'}
+    result = await fut
+    return result + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+async def helper(fut):
+    return await fut
+
+
+async def process(fut):
+    #? 15 text {'new_name': 'helper'}
+    result = await helper(fut)
+    return result + 1
