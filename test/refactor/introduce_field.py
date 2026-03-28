@@ -191,3 +191,15 @@ class MyClass:
         return inner()
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a field: 'x' is referenced inside a nested function
+# -------------------------------------------------- annotated-assignment
+class MyClass:
+    def foo(self):
+        #? 8 text
+        x: int = 42
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        #? 8 text
+        self.x: int = 42
+        return self.x
