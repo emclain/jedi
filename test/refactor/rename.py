@@ -937,3 +937,21 @@ use(x)
 -use(x)
 +items = []  # type: List[int]
 +use(items)
+# -------------------------------------------------- import-then-rebind-shadowing
+# Deviation: renames import too; should only rename the local rebinding and its uses
+import undefined_mod
+#? 0 {'new_name': 'uss'}
+undefined_mod = 3
+print(undefined_mod)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,6 +1,6 @@
+ # Deviation: renames import too; should only rename the local rebinding and its uses
+-import undefined_mod
++import uss
+ #? 0 {'new_name': 'uss'}
+-undefined_mod = 3
+-print(undefined_mod)
++uss = 3
++print(uss)
