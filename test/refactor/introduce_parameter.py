@@ -214,3 +214,16 @@ def bar():
 def foo(x=bar()):
     #? 4 text
     return x
+# -------------------------------------------------- call-site-unchanged
+def foo():
+    #? 4 text
+    x = 42
+    return x + 1
+
+result = foo()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def foo(x=42):
+    #? 4 text
+    return x + 1
+
+result = foo()
