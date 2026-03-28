@@ -806,3 +806,18 @@ def f():
     with open('a') as r, open('b', 'w') as w:
 #? 8 text {'new_name': 'ab', 'until_line': 5}
         data = ab(r, w)
+# -------------------------------------------------- tuple-return
+def f(compute):
+#? 4 text {'new_name': 'helper', 'until_line': 3}
+    x, y = compute()
+    return x + y
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def helper(compute):
+    x, y = compute()
+    return x, y
+
+
+def f(compute):
+#? 4 text {'new_name': 'helper', 'until_line': 3}
+    x, y = helper(compute)
+    return x + y
