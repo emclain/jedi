@@ -596,6 +596,31 @@ class Foo:
  class Foo:
 -    bar = module_var + 1
 +    bar = module_val + 1
+# -------------------------------------------------- nonlocal-sibling-closures
+def outer():
+    x = 1
+    def writer():
+        #? 17 {'new_name': 'y'}
+        nonlocal x
+        x = 2
+    def reader():
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,9 +1,9 @@
+ def outer():
+-    x = 1
++    y = 1
+     def writer():
+         #? 17 {'new_name': 'y'}
+-        nonlocal x
+-        x = 2
++        nonlocal y
++        y = 2
+     def reader():
+-        return x
++        return y
 # -------------------------------------------------- global-decl-nested
 #? 0 {'new_name': 'y'}
 x = 0
