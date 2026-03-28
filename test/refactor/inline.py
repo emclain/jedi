@@ -598,6 +598,20 @@ async def f():
 -    a = await something()
 -    return a + 1
 +    return await something() + 1
+# -------------------------------------------------- await-expr
+async def f():
+    #? 4
+    a = await something()
+    return a * 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ async def f():
+     #? 4
+-    a = await something()
+-    return a * 2
++    return await something() * 2
 # -------------------------------------------------- default-arg-value
 #? 0
 timeout = 30
