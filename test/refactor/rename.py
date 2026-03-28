@@ -771,3 +771,16 @@ print(b)
 -print(b)
 +a, *rest, c = [1, 2, 3, 4, 5]
 +print(rest)
+# -------------------------------------------------- annotated-no-value
+#? 0 {'new_name': 'y'}
+x: int
+print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'y'}
+-x: int
+-print(x)
++y: int
++print(y)
