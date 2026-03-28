@@ -643,3 +643,15 @@ def connect(host, t=timeout):
 -def connect(host, t=timeout):
 +def connect(host, t=30):
      pass
+# -------------------------------------------------- lambda-binary-operand
+#? 0
+a = lambda x: x + 1
+result = a or fallback
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = lambda x: x + 1
+-result = a or fallback
++result = (lambda x: x + 1) or fallback
