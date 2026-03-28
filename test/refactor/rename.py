@@ -555,3 +555,28 @@ other = list(range(3))
 +    lst.append(1)
 +    return lst
  other = list(range(3))
+# -------------------------------------------------- nonlocal-sibling-closures
+def outer():
+    x = 1
+    def writer():
+        #? 17 {'new_name': 'y'}
+        nonlocal x
+        x = 2
+    def reader():
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,9 +1,9 @@
+ def outer():
+-    x = 1
++    y = 1
+     def writer():
+         #? 17 {'new_name': 'y'}
+-        nonlocal x
+-        x = 2
++        nonlocal y
++        y = 2
+     def reader():
+-        return x
++        return y
