@@ -636,3 +636,19 @@ result = a or fallback
 -a = lambda x: x + 1
 -result = a or fallback
 +result = (lambda x: x + 1) or fallback
+# -------------------------------------------------- decorator-expression
+#? 0
+base = some_module.decorator
+@base
+def f():
+    pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,6 +1,5 @@
+ #? 0
+-base = some_module.decorator
+-@base
++@some_module.decorator
+ def f():
+     pass
