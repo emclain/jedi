@@ -567,6 +567,30 @@ result = a if flag else 0
 -a = expensive()
 -result = a if flag else 0
 +result = expensive() if flag else 0
+# -------------------------------------------------- annotation-generic
+items: list[int] = [1, 2, 3]
+#? 5
+test(items)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+-items: list[int] = [1, 2, 3]
+ #? 5
+-test(items)
++test([1, 2, 3])
+# -------------------------------------------------- annotation-forward-ref
+x: 'MyClass' = MyClass()
+#? 5
+test(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+-x: 'MyClass' = MyClass()
+ #? 5
+-test(x)
++test(MyClass())
 # -------------------------------------------------- assert-condition
 #? 0
 flag = x > 0
