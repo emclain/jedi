@@ -270,6 +270,13 @@ y = f"val={a}"
 #? 11 text {'new_name': 'x'}
 x = a
 y = f"val={x}"
+# -------------------------------------------------- fstring-nested-spec
+#? 12 text {'new_name': 'p'}
+y = f"{x:.{precision}f}"
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 12 text {'new_name': 'p'}
+p = precision
+y = f"{x:.{p}f}"
 # -------------------------------------------------- dict-literal
 #? 4 text {'new_name': 'x'}
 y = {1: 2, 3: 4}
