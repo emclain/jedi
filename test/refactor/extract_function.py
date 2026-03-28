@@ -540,6 +540,16 @@ def f(data):
     #? 4 text {'new_name': 'extracted', 'until_line': 6, 'until_column': 21}
     x = extracted(parse, data, default)
     return x
+# -------------------------------------------------- bare-raise-in-except
+def f():
+    try:
+        risky()
+    except Exception as e:
+        #? 8 error {'new_name': 'helper', 'until_line': 7, 'until_column': 13}
+        log(e)
+        raise
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot extract bare raise statements.
 # -------------------------------------------------- with-statement-range
 def f():
     with open('f') as fh:

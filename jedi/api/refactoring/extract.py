@@ -336,6 +336,8 @@ def _check_for_non_extractables(nodes):
                     'Can only extract return statements if they are at the end.')
             if n.value == 'yield':
                 raise RefactoringError('Cannot extract yield statements.')
+            if n.value == 'raise' and n.parent.type == 'simple_stmt':
+                raise RefactoringError('Cannot extract bare raise statements.')
         else:
             _check_for_non_extractables(children)
 
