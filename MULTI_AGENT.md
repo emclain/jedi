@@ -96,6 +96,7 @@ git commit -m "<message>"
 bd create --title="..." --type=task --priority=<n>
 
 # Final quality gate
+python3 scripts/smoke_dependents.py
 python3 -m pytest -v -k "refactor"
 
 # Close the issue
