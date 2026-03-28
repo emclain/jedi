@@ -649,3 +649,39 @@ async def process(fut):
     #? 15 text {'new_name': 'helper'}
     result = await helper(fut)
     return result + 1
+# -------------------------------------------------- match-case-return-expression
+def handle(cmd):
+    match cmd:
+        case 'quit':
+#? 19 text {'new_name': 'do_quit'}
+            return 1
+        case 'go':
+            return 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def do_quit():
+    return 1
+
+
+def handle(cmd):
+    match cmd:
+        case 'quit':
+#? 19 text {'new_name': 'do_quit'}
+            return do_quit()
+        case 'go':
+            return 2
+# -------------------------------------------------- match-subject-expression
+def handle(cmd, extra):
+#? 10 text {'new_name': 'get_subject', 'until_column': 21}
+    match cmd + extra:
+        case 'quit':
+            pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def get_subject(cmd, extra):
+    return cmd + extra
+
+
+def handle(cmd, extra):
+#? 10 text {'new_name': 'get_subject', 'until_column': 21}
+    match get_subject(cmd, extra):
+        case 'quit':
+            pass
