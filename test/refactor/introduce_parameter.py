@@ -209,3 +209,16 @@ def foo():
     return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot use a call expression as a default value: it would be evaluated once at definition time, not on each call
+# -------------------------------------------------- call-site-unchanged
+def foo():
+    #? 4 text
+    x = 42
+    return x + 1
+
+result = foo()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def foo(x=42):
+    #? 4 text
+    return x + 1
+
+result = foo()
