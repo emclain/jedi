@@ -307,12 +307,16 @@ def extract_function(inference_state, path, module_context, name, pos, until_pos
 
 
 def _contains_await(nodes):
-    """Check if any of the nodes contain an await expression.
+    """Check if any of the nodes contain an await expression or async for/with.
 
     In parso, 'await expr' is represented as an atom_expr whose first child
     is a keyword leaf with value 'await' (e.g. atom_expr([<Keyword: await>,
     <Name: fut>])). There is no 'await_expr' node type. The 'await' keyword
     is therefore found via the leaf (AttributeError) branch below.
+
+    'async for' and 'async with' are represented as async_stmt nodes whose
+    second child is a for_stmt or with_stmt respectively.  These also require
+    the enclosing function to be declared async.
     """
     for node in nodes:
         try:
@@ -321,6 +325,9 @@ def _contains_await(nodes):
             if node.type == 'keyword' and node.value == 'await':
                 return True
         else:
+            if node.type == 'async_stmt' and len(children) >= 2 \
+                    and children[1].type in ('for_stmt', 'with_stmt'):
+                return True
             if _contains_await(children):
                 return True
     return False

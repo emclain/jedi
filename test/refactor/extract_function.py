@@ -821,3 +821,33 @@ def f(compute):
 #? 4 text {'new_name': 'helper', 'until_line': 3}
     x, y = helper(compute)
     return x + y
+# -------------------------------------------------- async-for-range
+async def process(items):
+#? 4 text {'new_name': 'helper', 'until_line': 4}
+    async for item in items:
+        print(item)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+async def helper(items):
+    async for item in items:
+        print(item)
+    return item
+
+
+async def process(items):
+#? 4 text {'new_name': 'helper', 'until_line': 4}
+    item = await helper(items)
+# -------------------------------------------------- async-with-range
+async def process(conn):
+#? 4 text {'new_name': 'helper', 'until_line': 4}
+    async with conn.transaction() as tx:
+        tx.execute('SELECT 1')
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+async def helper(conn):
+    async with conn.transaction() as tx:
+        tx.execute('SELECT 1')
+    return tx
+
+
+async def process(conn):
+#? 4 text {'new_name': 'helper', 'until_line': 4}
+    tx = await helper(conn)
