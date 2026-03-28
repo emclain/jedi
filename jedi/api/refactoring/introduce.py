@@ -195,6 +195,12 @@ def introduce_field(inference_state, path, module_node, pos):
             "Cannot introduce a field: %s already exists in the method" % field_ref
         )
 
+    # Check that self.var_name doesn't already exist in other methods of the class
+    if _has_field_in_other_methods(classdef, suite, self_name, var_name):
+        raise RefactoringError(
+            "Cannot introduce a field: %s already exists in the class" % field_ref
+        )
+
     # Check that the variable is not referenced inside a nested function.
     # Such references are closures over the local variable; after the refactor
     # the local no longer exists, but self.x cannot be substituted safely
@@ -273,6 +279,42 @@ def _get_funcdef_suite(funcdef):
         if child.type == 'suite':
             return child
     return None
+
+
+def _has_field_in_other_methods(classdef, current_suite, self_name, var_name):
+    """
+    Return True if any method in classdef other than the one with current_suite
+    contains a reference to self_name.var_name.
+    """
+    class_suite = None
+    for child in classdef.children:
+        if child.type == 'suite':
+            class_suite = child
+            break
+    if class_suite is None:
+        return False
+
+    for child in class_suite.children:
+        method = None
+        if child.type in ('funcdef', 'async_funcdef'):
+            method = child
+        elif child.type == 'decorated':
+            for subchild in child.children:
+                if subchild.type in ('funcdef', 'async_funcdef'):
+                    method = subchild
+                    break
+
+        if method is None:
+            continue
+
+        suite = _get_funcdef_suite(method)
+        if suite is None or suite is current_suite:
+            continue
+
+        if _has_field_reference(suite, self_name, var_name):
+            return True
+
+    return False
 
 
 def _has_field_reference(node, self_name, var_name):

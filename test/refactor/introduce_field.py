@@ -122,6 +122,16 @@ class MyClass:
         return self.x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a field: self.x already exists in the method
+# -------------------------------------------------- field-exists-in-other-method-error
+class MyClass:
+    def __init__(self):
+        self.x = 0
+    def foo(self):
+        #? 8 error
+        x = 42
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field: self.x already exists in the class
 # -------------------------------------------------- nested-class-var-error
 def a():
     class Foo:
