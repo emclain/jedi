@@ -201,16 +201,6 @@ def introduce_field(inference_state, path, module_node, pos):
             "Cannot introduce a field: %s already exists in the class" % field_ref
         )
 
-    # Check that the variable is not referenced inside a nested function.
-    # Such references are closures over the local variable; after the refactor
-    # the local no longer exists, but self.x cannot be substituted safely
-    # without knowing whether self is shadowed in the nested scope.
-    if suite is not None and _has_reference_in_nested_func(suite, var_name):
-        raise RefactoringError(
-            "Cannot introduce a field: '%s' is referenced inside a nested function"
-            % var_name
-        )
-
     # Build node changes:
     # 1. Replace the definition `x = expr` with `self.x = expr`
     # 2. Replace all references to `x` within the function with `self.x`
@@ -350,46 +340,6 @@ def _has_field_reference(node, self_name, var_name):
     return any(_has_field_reference(child, self_name, var_name) for child in children)
 
 
-def _has_reference_in_nested_func(node, name):
-    """
-    Return True if *name* is referenced as a free variable inside any nested
-    funcdef or async_funcdef within *node*.  Does not recurse past classdef
-    boundaries (a nested class creates its own scope).
-    """
-    try:
-        children = node.children
-    except AttributeError:
-        return False
-
-    if node.type == 'classdef':
-        return False
-
-    for child in children:
-        if child.type in ('funcdef', 'async_funcdef'):
-            if _name_used_in_func(child, name):
-                return True
-        else:
-            if _has_reference_in_nested_func(child, name):
-                return True
-    return False
-
-
-def _name_used_in_func(funcdef_node, name):
-    """Return True if *name* appears as a name leaf anywhere inside funcdef_node."""
-    try:
-        children = funcdef_node.children
-    except AttributeError:
-        return (funcdef_node.type == 'name'
-                and funcdef_node.value == name
-                and not (funcdef_node.parent.type == 'trailer'
-                         and funcdef_node.parent.children[0] == '.'))
-
-    for child in children:
-        if _name_used_in_func(child, name):
-            return True
-    return False
-
-
 def _walk_name_references(node, name, callback):
     """
     Walk the node tree, calling callback(leaf) for every name leaf whose
@@ -418,11 +368,36 @@ def _walk_name_references(node, name, callback):
         _walk_name_references(child, name, callback)
 
 
+def _walk_name_references_full(node, name, callback):
+    """
+    Like _walk_name_references but also descends into nested funcdef/async_funcdef
+    nodes (closures), replacing references there too.  Still does not cross
+    classdef boundaries.
+    """
+    try:
+        children = node.children
+    except AttributeError:
+        if node.type == 'name' and node.value == name:
+            if node.parent.type == 'trailer' and node.parent.children[0] == '.':
+                return
+            callback(node)
+        return
+
+    if node.type == 'classdef':
+        return
+
+    for child in children:
+        if child.type == 'trailer' and child.children[0] == '.':
+            continue
+        _walk_name_references_full(child, name, callback)
+
+
 def _replace_references_with_field(node, var_name, field_ref, definition_leaf, node_changes):
     """
     Recursively find references to var_name in node and replace them
     with field_ref (e.g., self.var_name). Skip the definition itself
     and names that are part of attribute access (x.something is already handled).
+    Also replaces references inside nested functions (closures).
     """
     def _apply(leaf):
         if leaf is definition_leaf:
@@ -432,7 +407,7 @@ def _replace_references_with_field(node, var_name, field_ref, definition_leaf, n
             return
         node_changes[leaf] = leaf.prefix + field_ref
 
-    _walk_name_references(node, var_name, _apply)
+    _walk_name_references_full(node, var_name, _apply)
 
 
 def _rename_in_scope(funcdef, old_name, new_name, node_changes):
