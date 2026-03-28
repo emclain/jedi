@@ -114,6 +114,17 @@ git worktree add "$worktree" -b "work/$claimed" origin/refactoring-test-coverage
 echo "Initializing submodules in worktree..."
 git -C "$worktree" submodule update --init jedi/third_party/typeshed
 
+# Git worktrees also do NOT inherit .beads/ — bd would spin up a fresh Dolt
+# server with an empty database and fail with "database not found".
+# Copy the config and the running server's port file so bd in the worktree
+# connects to the same server (and same beads_jedi database) as this checkout.
+echo "Bridging bd into worktree..."
+mkdir -p "$worktree/.beads"
+cp "$REPO_ROOT/.beads/config.yaml" "$worktree/.beads/"
+if [ -f "$REPO_ROOT/.beads/dolt-server.port" ]; then
+  cp "$REPO_ROOT/.beads/dolt-server.port" "$worktree/.beads/"
+fi
+
 echo "Worktree created at: $worktree_abs"
 
 # ── 8. Copy venv activation hint ─────────────────────────────────────────────

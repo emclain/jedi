@@ -66,6 +66,13 @@ git worktree add ../jedi-$claimed -b work/$claimed origin/refactoring-test-cover
 # Worktrees do NOT inherit submodule contents — initialize typeshed or tests fail
 git -C ../jedi-$claimed submodule update --init jedi/third_party/typeshed
 
+# Worktrees also do NOT inherit .beads/ — bd would start a fresh Dolt server
+# with an empty database.  Copy the config and port file so bd in the worktree
+# connects to the same already-running server as the main checkout.
+mkdir -p ../jedi-$claimed/.beads
+cp .beads/config.yaml ../jedi-$claimed/.beads/
+[ -f .beads/dolt-server.port ] && cp .beads/dolt-server.port ../jedi-$claimed/.beads/
+
 cd ../jedi-$claimed
 ```
 
@@ -90,6 +97,11 @@ git commit -m "<message>"
 ```
 
 ### 3. Landing the Plane (in the worktree)
+
+`bd` commands work in the worktree because `agent-start.sh` copied `.beads/config.yaml`
+and `.beads/dolt-server.port` there, so bd connects to the same Dolt server as the main
+checkout.  **If the server restarted** (stale port), bd commands will fail — fall back to
+prefixing them with `(cd /workspace/dev/jedi && ...)`.
 
 ```bash
 # File issues for anything discovered but not completed
