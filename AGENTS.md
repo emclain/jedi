@@ -2,6 +2,32 @@
 
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
 
+## Beads Setup (fresh checkout)
+
+Beads requires the `bd` CLI and a local Dolt database. On a new machine or container:
+
+```bash
+# 1. Install the bd CLI
+curl -sSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+# If that requires root, download the binary directly instead:
+#   ARCH=$(uname -m); [ "$ARCH" = "aarch64" ] && ARCH="arm64"
+#   curl -L "https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-$ARCH.tar.gz" | tar -xz -C /tmp
+#   cp /tmp/dolt-linux-$ARCH/bin/dolt ~/.local/bin/
+
+# 2. Initialize the local Dolt database from the checked-in issues.jsonl
+bd init --force --prefix jedi
+
+# 3. Import existing issues
+bd import
+
+# 4. Verify
+bd list
+```
+
+> Note: the Dolt database is runtime state (not in git). You must run `bd init` + `bd import`
+> on every fresh checkout or container. Export back with `bd export > .beads/issues.jsonl`
+> before committing.
+
 ## Setup
 
 ```bash
