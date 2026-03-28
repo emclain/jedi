@@ -507,6 +507,21 @@ print(y)
 -print(y)
 +result = [(z := x + 1) for x in range(5)]
 +print(z)
+# -------------------------------------------------- walrus-nested-comprehension
+data = [1, 2, 3]
+#? 11 {'new_name': 'w'}
+result = [(y := x) for x in [z for z in data]]
+print(y)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ data = [1, 2, 3]
+ #? 11 {'new_name': 'w'}
+-result = [(y := x) for x in [z for z in data]]
+-print(y)
++result = [(w := x) for x in [z for z in data]]
++print(w)
 # -------------------------------------------------- comprehension-inner-var
 #? 20 {'new_name': 'i'}
 result = [x * 2 for x in range(10)]
