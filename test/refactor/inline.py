@@ -567,3 +567,27 @@ result = a if flag else 0
 -a = expensive()
 -result = a if flag else 0
 +result = expensive() if flag else 0
+# -------------------------------------------------- assert-condition
+#? 0
+flag = x > 0
+assert flag
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-flag = x > 0
+-assert flag
++assert x > 0
+# -------------------------------------------------- assert-with-message
+#? 0
+limit = 100
+assert x < limit, f'x must be < {limit}'
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-limit = 100
+-assert x < limit, f'x must be < {limit}'
++assert x < 100, f'x must be < {100}'
