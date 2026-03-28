@@ -642,6 +642,27 @@ def outer():
     def inner():
         #? 15 text {'new_name': 'helper'}
         return helper(x)
+# -------------------------------------------------- nonlocal-write
+def outer():
+    count = 0
+    def inner():
+        nonlocal count
+        #? 8 text {'new_name': 'helper', 'until_line': 6}
+        count += 1
+        return count
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def helper():
+    count += 1
+    return count
+
+
+def outer():
+    count = 0
+    def inner():
+        nonlocal count
+        #? 8 text {'new_name': 'helper', 'until_line': 6}
+        count = helper()
+        return count
 # -------------------------------------------------- async-await-bug
 async def process():
     #? 15 text {'new_name': 'helper'}
