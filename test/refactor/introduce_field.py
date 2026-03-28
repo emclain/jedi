@@ -185,3 +185,12 @@ class MyClass:
         #? 8 text
         self.active = True
         return self.active
+# -------------------------------------------------- field-already-exists-error
+class MyClass:
+    def foo(self):
+        #? 8 error
+        x = 42
+        self.x = 99
+        return self.x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field: self.x already exists in the method
