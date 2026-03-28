@@ -279,6 +279,19 @@ x = [x for x in range(10)]
  #? 0 {'new_name': 'y'}
 -x = [x for x in range(10)]
 +y = [x for x in range(10)]
+# -------------------------------------------------- comprehension-iterable-outer-var
+#? 0 {'new_name': 'data'}
+items = [1, 2, 3]
+result = [items for items in items]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'data'}
+-items = [1, 2, 3]
+-result = [items for items in items]
++data = [1, 2, 3]
++result = [items for items in data]
 # -------------------------------------------------- global-from-function
 x_var = 1
 def f():
@@ -583,6 +596,51 @@ class Foo:
  class Foo:
 -    bar = module_var + 1
 +    bar = module_val + 1
+# -------------------------------------------------- nonlocal-sibling-closures
+def outer():
+    x = 1
+    def writer():
+        #? 17 {'new_name': 'y'}
+        nonlocal x
+        x = 2
+    def reader():
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,9 +1,9 @@
+ def outer():
+-    x = 1
++    y = 1
+     def writer():
+         #? 17 {'new_name': 'y'}
+-        nonlocal x
+-        x = 2
++        nonlocal y
++        y = 2
+     def reader():
+-        return x
++        return y
+# -------------------------------------------------- global-decl-nested
+#? 0 {'new_name': 'y'}
+x = 0
+def f():
+    def g():
+        global x
+        x = 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ #? 0 {'new_name': 'y'}
+-x = 0
++y = 0
+ def f():
+     def g():
+-        global x
+-        x = 1
++        global y
++        y = 1
 # -------------------------------------------------- property-setter-rename
 class Foo:
     @property
