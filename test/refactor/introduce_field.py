@@ -78,6 +78,18 @@ class MyClass:
         #? 8 text
         cls.x = 42
         return cls.x + 1
+# -------------------------------------------------- nonconventional-self-param
+class MyClass:
+    def foo(this):
+        #? 8 text
+        x = 42
+        return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(this):
+        #? 8 text
+        this.x = 42
+        return this.x + 1
 # -------------------------------------------------- list-value
 class MyClass:
     def foo(self):
