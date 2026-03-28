@@ -605,3 +605,17 @@ async def f():
 -    a = await something()
 -    return a + 1
 +    return await something() + 1
+# -------------------------------------------------- default-arg-value
+#? 0
+timeout = 30
+def connect(host, t=timeout):
+    pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ #? 0
+-timeout = 30
+-def connect(host, t=timeout):
++def connect(host, t=30):
+     pass
