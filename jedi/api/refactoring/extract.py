@@ -15,7 +15,6 @@ _VARIABLE_EXCTRACTABLE = EXPRESSION_PARTS + \
      'keyword name number string fstring').split()
 _FRIENDLY_TYPE_NAMES = {
     'namedexpr_test': 'walrus operator (:=)',
-    'fstring_start': 'f-string',
 }
 
 
