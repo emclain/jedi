@@ -702,6 +702,22 @@ def f():
 -        x = 1
 +        global y
 +        y = 1
+# -------------------------------------------------- fstring-debug-specifier
+#? 0 {'new_name': 'renamed_value'}
+value = 42
+result = f"{value=}"
+print(value)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'renamed_value'}
+-value = 42
+-result = f"{value=}"
+-print(value)
++renamed_value = 42
++result = f"{renamed_value=}"
++print(renamed_value)
 # -------------------------------------------------- property-setter-rename
 class Foo:
     @property
