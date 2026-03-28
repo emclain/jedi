@@ -135,6 +135,7 @@ When multiple instances are running from the same checkout, see **[MULTI_AGENT.m
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 - `bd dolt push` is NOT configured — use `bd export > .beads/issues.jsonl` + git push instead
+- Always use `git pull --no-rebase` (merge) — never `git pull --rebase`
 
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
@@ -187,4 +188,5 @@ bd close <id>         # Complete work
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
+- Always use `git pull --no-rebase` (merge) — never `git pull --rebase`
 <!-- END BEADS INTEGRATION -->
