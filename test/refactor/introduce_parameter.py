@@ -282,3 +282,12 @@ def foo():
     return 0
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter from an annotation without a value
+# -------------------------------------------------- annotated-assignment
+def foo():
+    #? 4 text
+    x: int = 42
+    return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def foo(x=42):
+    #? 4 text
+    return x + 1
