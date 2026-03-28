@@ -16,7 +16,7 @@ Multiple Claude instances can work in parallel from the same checkout without co
 cd /workspace/dev/jedi
 
 # Pull latest
-git pull origin master
+git pull origin refactoring-test-coverage
 bd dolt pull
 
 # Find and claim the highest-priority available issue
@@ -31,7 +31,7 @@ done
 [ -z "$claimed" ] && echo "No available work." && exit 0
 
 # Create an isolated worktree + branch for this issue
-git worktree add ../jedi-$claimed -b work/$claimed origin/master
+git worktree add ../jedi-$claimed -b work/$claimed origin/refactoring-test-coverage
 cd ../jedi-$claimed
 ```
 
@@ -67,11 +67,11 @@ python3 -m pytest -v -k "refactor"
 # Close the issue
 bd close $claimed
 
-# Push branch to remote master (retry loop handles concurrent instances)
+# Push branch to remote (retry loop handles concurrent instances)
 while true; do
-  git fetch origin master
-  git merge origin/master --no-edit
-  git push origin work/$claimed:master && break
+  git fetch origin refactoring-test-coverage
+  git merge origin/refactoring-test-coverage --no-edit
+  git push origin work/$claimed:refactoring-test-coverage && break
   echo "Push rejected — another instance landed first, retrying..."
   sleep 1
 done
@@ -87,6 +87,6 @@ git branch -d work/$claimed
 
 ## Why This Is Safe
 
-- **No local master branch is ever modified.** The shared checkout stays on its branch untouched. Instances push `work/$claimed:master` directly to the remote, so there is no shared local state to corrupt.
+- **No local `refactoring-test-coverage` branch is ever modified.** The shared checkout stays on its branch untouched. Instances push `work/$claimed:refactoring-test-coverage` directly to the remote, so there is no shared local state to corrupt.
 - **Push rejection is the coordination signal.** If two instances finish at the same time, one push is rejected. The loser fetches, merges into its worktree, and retries — entirely in isolation.
 - **`--claim` is atomic.** Two instances seeing the same issue in `bd ready` output will race to claim it; exactly one succeeds. The loser moves to the next candidate.

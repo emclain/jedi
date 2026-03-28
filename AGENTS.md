@@ -105,7 +105,7 @@ bd sync               # Sync with git
 
 ## Multi-Agent Parallelism
 
-When multiple instances are running from the same checkout, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: claim with `bd update --claim`, isolate with `git worktree`, push via `work/<id>:master` with a retry loop — never touch the shared checkout's local `master`.
+When multiple instances are running from the same checkout, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: claim with `bd update --claim`, isolate with `git worktree`, push via `work/<id>:refactoring-test-coverage` with a retry loop — never touch the shared checkout's local `refactoring-test-coverage`.
 
 ## Landing the Plane (Session Completion)
 
@@ -118,9 +118,9 @@ When multiple instances are running from the same checkout, see **[MULTI_AGENT.m
 3. **Update issue status** - Close finished work, update in-progress items
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
-   git pull --rebase
+   git pull origin refactoring-test-coverage
    bd sync
-   git push
+   git push origin refactoring-test-coverage
    git status  # MUST show "up to date with origin"
    ```
 5. **Clean up** - Clear stashes, prune remote branches
@@ -165,9 +165,9 @@ bd close <id>         # Complete work
 3. **Update issue status** - Close finished work, update in-progress items
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
-   git pull --rebase
+   git pull origin refactoring-test-coverage
    bd dolt push
-   git push
+   git push origin refactoring-test-coverage
    git status  # MUST show "up to date with origin"
    ```
 5. **Clean up** - Clear stashes, prune remote branches
