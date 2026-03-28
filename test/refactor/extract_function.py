@@ -62,6 +62,20 @@ def ab(x):
 def f(x):
 #? 11 text {'new_name': 'ab'}
     return ab(x)
+# -------------------------------------------------- in-function-with-dec-args
+@retry(times=3)
+def f(x):
+#? 11 text {'new_name': 'ab'}
+    return x + 1 * 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(x):
+    return x + 1 * 2
+
+
+@retry(times=3)
+def f(x):
+#? 11 text {'new_name': 'ab'}
+    return ab(x)
 # -------------------------------------------------- in-method-1
 class X:
     def z(self): pass
