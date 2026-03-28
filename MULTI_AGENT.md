@@ -76,14 +76,42 @@ while true; do
   sleep 1
 done
 
-# Push beads state
-bd dolt push
+# Persist beads state to git (bd dolt push is NOT used here — see note below)
+bd export > .beads/issues.jsonl
+git add .beads/issues.jsonl
+git commit -m "bd sync: update issues.jsonl after $claimed"
+
+# Push beads state along with (or after) the code push — same retry loop applies
+while true; do
+  git fetch origin refactoring-test-coverage
+  git merge origin/refactoring-test-coverage --no-edit
+  git push origin work/$claimed:refactoring-test-coverage && break
+  echo "Push rejected — another instance landed first, retrying..."
+  sleep 1
+done
 
 # Clean up worktree
 cd /workspace/dev/jedi
 git worktree remove ../jedi-$claimed
 git branch -d work/$claimed
 ```
+
+## Beads State Persistence
+
+`bd dolt push` is **not configured** in this environment — there is no dolt remote. Running it will always fail with `remote 'origin' not found`.
+
+Beads state is instead persisted through the git-tracked `.beads/issues.jsonl` file. This is the canonical source for future sessions: `bd init` + `bd import` on a fresh checkout reads from it.
+
+**To persist issue changes (closes, updates, new issues) for future sessions:**
+
+```bash
+bd export > .beads/issues.jsonl
+git add .beads/issues.jsonl
+git commit -m "bd sync: ..."
+git push origin <branch>:refactoring-test-coverage
+```
+
+If `issues.jsonl` is not updated and pushed, any issue state changes made during the session (closures, claims, new issues) will be **invisible to future sessions** that re-run `bd import` from git. The local dolt database under `.beads/dolt/` is runtime state and is not preserved across containers or fresh checkouts.
 
 ## Why This Is Safe
 

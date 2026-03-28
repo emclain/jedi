@@ -119,7 +119,9 @@ When multiple instances are running from the same checkout, see **[MULTI_AGENT.m
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull origin refactoring-test-coverage
-   bd sync
+   bd export > .beads/issues.jsonl   # persist beads state (bd dolt push is NOT configured)
+   git add .beads/issues.jsonl
+   git diff --cached --quiet || git commit -m "bd sync: update issues.jsonl"
    git push origin refactoring-test-coverage
    git status  # MUST show "up to date with origin"
    ```
@@ -132,6 +134,7 @@ When multiple instances are running from the same checkout, see **[MULTI_AGENT.m
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
+- `bd dolt push` is NOT configured — use `bd export > .beads/issues.jsonl` + git push instead
 
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
@@ -166,10 +169,15 @@ bd close <id>         # Complete work
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull origin refactoring-test-coverage
-   bd dolt push
+   bd export > .beads/issues.jsonl   # persist beads state (bd dolt push is NOT configured)
+   git add .beads/issues.jsonl
+   git diff --cached --quiet || git commit -m "bd sync: update issues.jsonl"
    git push origin refactoring-test-coverage
    git status  # MUST show "up to date with origin"
    ```
+   > **Note:** `bd dolt push` always fails in this environment — no dolt remote is configured.
+   > Use `bd export > .beads/issues.jsonl` + git commit + push instead. See MULTI_AGENT.md
+   > for details.
 5. **Clean up** - Clear stashes, prune remote branches
 6. **Verify** - All changes committed AND pushed
 7. **Hand off** - Provide context for next session
