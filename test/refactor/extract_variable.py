@@ -423,3 +423,12 @@ result = a + 1 if x else b
 #? 9 text {'new_name': 'v', 'until_column': 14}
 v = a + 1
 result = v if x else b
+# -------------------------------------------------- await-expr
+async def test():
+    #? 13 text {'new_name': 'val'}
+    result = await something()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+async def test():
+    #? 13 text {'new_name': 'val'}
+    val = await something()
+    result = val
