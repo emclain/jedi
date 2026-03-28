@@ -45,9 +45,14 @@ class RefactoringCase(object):
 
     def refactor(self, environment):
         project = jedi.Project(os.path.join(test_dir, 'refactor'))
-        script = jedi.Script(self._code, path=self._path, project=project, environment=environment)
+        kwargs = dict(self._kwargs)
+        if '_path' in kwargs:
+            path = os.path.join(test_dir, 'refactor', kwargs.pop('_path'))
+        else:
+            path = self._path
+        script = jedi.Script(self._code, path=path, project=project, environment=environment)
         refactor_func = getattr(script, self.refactor_type)
-        return refactor_func(self._line_nr, self._index, **self._kwargs)
+        return refactor_func(self._line_nr, self._index, **kwargs)
 
     def __repr__(self):
         return '<%s: %s:%s>' % (self.__class__.__name__,

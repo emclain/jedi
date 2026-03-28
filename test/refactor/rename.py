@@ -955,3 +955,36 @@ print(undefined_mod)
 -print(undefined_mod)
 +uss = 3
 +print(uss)
+# -------------------------------------------------- relative-import-from-dot
+#? 14 {'new_name': 'renamed_sibling', '_path': 'import_tree/rel_consumer.py'}
+from . import rel_sibling
+x = rel_sibling
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+rename from import_tree/rel_sibling.py
+rename to import_tree/renamed_sibling.py
+--- import_tree/rel_consumer.py
++++ import_tree/rel_consumer.py
+@@ -1,4 +1,4 @@
+ #? 14 {'new_name': 'renamed_sibling', '_path': 'import_tree/rel_consumer.py'}
+-from . import rel_sibling
+-x = rel_sibling
++from . import renamed_sibling
++x = renamed_sibling
+# -------------------------------------------------- relative-import-from-parent-pkg
+#? 23 {'new_name': 'renamed_deep_val', '_path': 'import_tree/pkgx/deep_consumer.py'}
+from ..deep_mod import deep_val
+result = deep_val
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- import_tree/deep_mod.py
++++ import_tree/deep_mod.py
+@@ -1,2 +1,2 @@
+-deep_val = 7
++renamed_deep_val = 7
+--- import_tree/pkgx/deep_consumer.py
++++ import_tree/pkgx/deep_consumer.py
+@@ -1,4 +1,4 @@
+ #? 23 {'new_name': 'renamed_deep_val', '_path': 'import_tree/pkgx/deep_consumer.py'}
+-from ..deep_mod import deep_val
+-result = deep_val
++from ..deep_mod import renamed_deep_val
++result = renamed_deep_val
