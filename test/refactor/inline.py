@@ -513,3 +513,15 @@ test(x * a)
 -a = lst[0]
 -test(x * a)
 +test(x * lst[0])
+# -------------------------------------------------- kwarg-value-inline
+#? 0
+fn = str
+result = fn(x, base=fn)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-fn = str
+-result = fn(x, base=fn)
++result = str(x, base=str)
