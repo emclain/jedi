@@ -738,3 +738,31 @@ with x as fh:
 -with x as fh:
 +with open('f') as fh:
      pass
+# -------------------------------------------------- shebang-preserved
+#!/usr/bin/env python3
+val = 42
+#? 4
+use(val)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ #!/usr/bin/env python3
+-val = 42
+ #? 4
+-use(val)
++use(42)
+# -------------------------------------------------- encoding-preserved
+# -*- coding: utf-8 -*-
+val = 42
+#? 4
+use(val)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ # -*- coding: utf-8 -*-
+-val = 42
+ #? 4
+-use(val)
++use(42)
