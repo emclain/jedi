@@ -666,3 +666,15 @@ result = [y for x in data if (y := f(x)) > 0]
 use(y)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot inline a namedexpr_test
+# -------------------------------------------------- multi-use-in-call
+#? 0
+val = 42
+result = some_func(val, key=val)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-val = 42
+-result = some_func(val, key=val)
++result = some_func(42, key=42)
