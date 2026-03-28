@@ -266,3 +266,10 @@ async def foo():
 async def foo(x=42):
     #? 4 text
     return x
+# -------------------------------------------------- annotation-only-error
+def foo():
+    #? 4 error
+    x: int
+    return 0
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter from an annotation without a value
