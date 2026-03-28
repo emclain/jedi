@@ -519,6 +519,14 @@ def x():
         pass
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot extract yield statements.
+# -------------------------------------------------- random-yield-3
+def x():
+    #? 0 error {'new_name': 'ab', 'until_line': 4, 'until_column': 17}
+    #
+    for item in (yield from [1, 2, 3]):
+        pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot extract yield statements.
 # -------------------------------------------------- with-global-var
 glob = 1
 def f():
