@@ -266,6 +266,15 @@ async def foo():
 async def foo(x=42):
     #? 4 text
     return x
+# -------------------------------------------------- star-args-in-signature
+def f(*args):
+    #? 4 text
+    x = 1
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def f(*args, x=1):
+    #? 4 text
+    return x
 # -------------------------------------------------- annotation-only-error
 def foo():
     #? 4 error
