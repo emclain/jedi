@@ -771,3 +771,18 @@ print(b)
 -print(b)
 +a, *rest, c = [1, 2, 3, 4, 5]
 +print(rest)
+# -------------------------------------------------- multiple-assignment-target
+#? 0 {'new_name': 'x'}
+a = b = 1
+print(a)
+print(b)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'x'}
+-a = b = 1
+-print(a)
++x = b = 1
++print(x)
+ print(b)
