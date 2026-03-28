@@ -277,6 +277,27 @@ y = f"{x:.{precision}f}"
 #? 12 text {'new_name': 'p'}
 p = precision
 y = f"{x:.{p}f}"
+# -------------------------------------------------- fstring-conversion-flag-repr
+#? 8 text {'new_name': 'x'}
+y = f"{obj!r}"
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 8 text {'new_name': 'x'}
+x = obj
+y = f"{x!r}"
+# -------------------------------------------------- fstring-conversion-flag-str
+#? 8 text {'new_name': 'x'}
+y = f"{obj!s}"
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 8 text {'new_name': 'x'}
+x = obj
+y = f"{x!s}"
+# -------------------------------------------------- fstring-conversion-flag-ascii
+#? 8 text {'new_name': 'x'}
+y = f"{obj!a}"
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 8 text {'new_name': 'x'}
+x = obj
+y = f"{x!a}"
 # -------------------------------------------------- dict-literal
 #? 4 text {'new_name': 'x'}
 y = {1: 2, 3: 4}
