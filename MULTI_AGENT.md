@@ -17,7 +17,6 @@ cd /workspace/dev/jedi
 
 # Pull latest
 git pull origin refactoring-test-coverage
-bd dolt pull
 
 # Find and claim the highest-priority available issue
 claimed=""
