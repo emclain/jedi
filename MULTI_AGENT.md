@@ -73,20 +73,27 @@ mkdir -p ../jedi-$claimed/.beads
 cp .beads/config.yaml ../jedi-$claimed/.beads/
 [ -f .beads/dolt-server.port ] && cp .beads/dolt-server.port ../jedi-$claimed/.beads/
 
+# Write .agent-env so the agent can source it instead of typing exports
+cat > ../jedi-$claimed/.agent-env <<EOF
+export CLAIMED_ID=$claimed
+export BEADS_ACTOR="agent-$(hostname)-$$"
+EOF
+
 cd ../jedi-$claimed
 ```
 
-Set a unique actor name so audit trails are distinguishable:
+Set a unique actor name so audit trails are distinguishable — `agent-start.sh` writes
+`.agent-env` into the worktree for this:
 
 ```bash
-export BEADS_ACTOR="agent-$(hostname)-$$"
+source .agent-env   # sets CLAIMED_ID and BEADS_ACTOR
 ```
 
 ### 2. Work (in the worktree)
 
 ```bash
 # Review the issue
-bd show $claimed
+bd show $CLAIMED_ID
 
 # Do the work, then run quality gates
 python3 -m pytest -v -k "refactor"
@@ -98,50 +105,58 @@ git commit -m "<message>"
 
 ### 3. Landing the Plane (in the worktree)
 
-`bd` commands work in the worktree because `agent-start.sh` copied `.beads/config.yaml`
-and `.beads/dolt-server.port` there, so bd connects to the same Dolt server as the main
-checkout.  **If the server restarted** (stale port), bd commands will fail — fall back to
-prefixing them with `(cd /workspace/dev/jedi && ...)`.
+First, file any follow-up issues for work you discovered but didn't complete:
 
 ```bash
-# File issues for anything discovered but not completed
 bd create --title="..." --type=task --priority=<n>
+```
 
-# Final quality gate
+Then run the landing script, which handles quality gates, `bd close`, both push retry
+loops, beads-state persistence, and worktree cleanup automatically:
+
+```bash
+bash scripts/agent-land.sh
+```
+
+`bd` commands work in the worktree because `agent-start.sh` copied `.beads/config.yaml`
+and `.beads/dolt-server.port` there so bd connects to the same Dolt server as the main
+checkout.  If the Dolt server restarted (stale port), `agent-land.sh` detects the failure,
+refreshes the port file from the main checkout, and retries automatically.
+
+<details>
+<summary>Manual equivalent (for reference or debugging)</summary>
+
+```bash
 python3 scripts/smoke_dependents.py
 python3 -m pytest -v -k "refactor"
 
-# Close the issue
-bd close $claimed
+bd close $CLAIMED_ID
 
-# Push branch to remote (retry loop handles concurrent instances)
 while true; do
   git fetch origin refactoring-test-coverage
   git merge origin/refactoring-test-coverage --no-edit
-  git push origin work/$claimed:refactoring-test-coverage && break
+  git push origin "work/$CLAIMED_ID:refactoring-test-coverage" && break
   echo "Push rejected — another instance landed first, retrying..."
   sleep 1
 done
 
-# Persist beads state to git (bd dolt push is NOT used here — see note below)
 bd export > .beads/issues.jsonl
 git add .beads/issues.jsonl
-git commit -m "bd sync: update issues.jsonl after $claimed"
+git commit -m "bd sync: update issues.jsonl after $CLAIMED_ID"
 
-# Push beads state along with (or after) the code push — same retry loop applies
 while true; do
   git fetch origin refactoring-test-coverage
   git merge origin/refactoring-test-coverage --no-edit
-  git push origin work/$claimed:refactoring-test-coverage && break
-  echo "Push rejected — another instance landed first, retrying..."
+  git push origin "work/$CLAIMED_ID:refactoring-test-coverage" && break
+  echo "Push rejected — retrying..."
   sleep 1
 done
 
-# Clean up worktree
 cd /workspace/dev/jedi
-git worktree remove --force ../jedi-$claimed  # --force needed because worktree contains submodule
-git branch -d work/$claimed
+git worktree remove --force "../jedi-$CLAIMED_ID"
+git branch -d "work/$CLAIMED_ID"
 ```
+</details>
 
 ### 4. **MANDATORY: Reflect on Startup** (do this even if everything went smoothly)
 

@@ -127,11 +127,18 @@ fi
 
 echo "Worktree created at: $worktree_abs"
 
-# ── 8. Copy venv activation hint ─────────────────────────────────────────────
+# ── 8. Write .agent-env so the agent can source it instead of typing exports ─
+cat > "$worktree/.agent-env" <<EOF
+export CLAIMED_ID=$claimed
+export BEADS_ACTOR="agent-$(hostname)-$$"
+EOF
+
 echo ""
 echo "Ready. Run the following to start work:"
 echo "  cd $worktree_abs"
 echo "  source $REPO_ROOT/.venv/bin/activate"
-echo "  export BEADS_ACTOR=\"agent-\$(hostname)-\$\$\""
-echo "  export CLAIMED_ID=$claimed"
+echo "  source .agent-env"
 echo "  bd show $claimed"
+echo ""
+echo "When done (work committed), land with:"
+echo "  bash scripts/agent-land.sh"
