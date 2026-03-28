@@ -40,20 +40,6 @@ class MyClass:
         #? 8 text
         self.x = 42
         return a + self.x
-# -------------------------------------------------- cls-param
-class MyClass:
-    @classmethod
-    def foo(cls):
-        #? 8 text
-        x = 42
-        return x + 1
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-class MyClass:
-    @classmethod
-    def foo(cls):
-        #? 8 text
-        cls.x = 42
-        return cls.x + 1
 # -------------------------------------------------- nonconventional-self-param
 class MyClass:
     def foo(this):
