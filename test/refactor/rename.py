@@ -899,3 +899,28 @@ def f():
      finally:
 -        cleanup(x)
 +        cleanup(data)
+# -------------------------------------------------- dunder-method-rename
+class MyClass:
+#? 8 {'new_name': 'setup'}
+    def __init__(self, x):
+        self.x = x
+
+class Child(MyClass):
+    def __init__(self, x, y):
+        super().__init__(x)
+        self.y = y
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,10 +1,10 @@
+ class MyClass:
+ #? 8 {'new_name': 'setup'}
+-    def __init__(self, x):
++    def setup(self, x):
+         self.x = x
+ 
+ class Child(MyClass):
+     def __init__(self, x, y):
+-        super().__init__(x)
++        super().setup(x)
+         self.y = y
