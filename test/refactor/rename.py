@@ -399,6 +399,29 @@ except ValueError as err:
 -    print(err)
 +except ValueError as exc:
 +    print(exc)
+# -------------------------------------------------- except-as-var-shadows-outer
+x = 1
+try:
+    pass
+#? 21 {'new_name': 'exc'}
+except ValueError as x:
+    print(x)
+print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,8 +1,8 @@
+-x = 1
++exc = 1
+ try:
+     pass
+ #? 21 {'new_name': 'exc'}
+-except ValueError as x:
+-    print(x)
+-print(x)
++except ValueError as exc:
++    print(exc)
++print(exc)
 # -------------------------------------------------- global-decl
 #? 0 {'new_name': 'y'}
 x = 10
