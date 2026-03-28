@@ -232,3 +232,12 @@ def foo():
     return a + b
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter from a statement with multiple definitions
+# -------------------------------------------------- positional-only-separator
+def f(a, b, /):
+    #? 4 text
+    x = 1
+    return a + b + x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def f(a, b, /, x=1):
+    #? 4 text
+    return a + b + x

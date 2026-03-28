@@ -83,6 +83,7 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
     # Modify the function's parameter list
     node_changes = {}
     parameters = funcdef.get_params()
+    params_node = funcdef.children[2]  # The 'parameters' node
     if parameters:
         # Appending after **kwargs would produce a SyntaxError
         last_param = parameters[-1]
@@ -90,13 +91,20 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             raise RefactoringError(
                 "Cannot introduce a parameter after **kwargs"
             )
-        last_param_code = last_param.get_code(include_prefix=True)
-        node_changes[last_param] = last_param_code + ', ' + new_param
+        # Check if a positional-only separator '/' follows the last param.
+        # When present with no params after it, we must insert after '/' not
+        # after last_param, otherwise we'd produce `def f(a, b, x=1/)`.
+        slash_node = _find_slash_after_last_param(params_node, last_param)
+        if slash_node is not None:
+            slash_code = slash_node.get_code(include_prefix=True)
+            node_changes[slash_node] = slash_code + ', ' + new_param
+        else:
+            last_param_code = last_param.get_code(include_prefix=True)
+            node_changes[last_param] = last_param_code + ', ' + new_param
     else:
         # No parameters exist - need to add inside the parens
         # funcdef.children: ['def', name, parameters, ':', suite]
         # parameters.children: ['(', ')']
-        params_node = funcdef.children[2]  # The 'parameters' node
         close_paren = params_node.children[-1]  # The ')' operator
         node_changes[close_paren] = new_param + ')'
 
@@ -211,6 +219,26 @@ def introduce_field(inference_state, path, module_node, pos):
 
     file_to_node_changes = {path: node_changes}
     return Refactoring(inference_state, file_to_node_changes)
+
+
+def _find_slash_after_last_param(params_node, last_param):
+    """
+    Return the '/' operator node if it immediately follows last_param in the
+    parameter list and there are no further Param nodes after it (meaning the
+    new parameter must be inserted after '/').  Returns None otherwise.
+    """
+    children = params_node.children
+    try:
+        idx = children.index(last_param)
+    except ValueError:
+        return None
+    # Scan forward past any commas/whitespace operators for a '/'
+    for child in children[idx + 1:]:
+        if child.type == 'param':
+            return None  # another param after last_param, no slash issue
+        if child.type == 'operator' and child.value == '/':
+            return child
+    return None
 
 
 def _find_enclosing_funcdef(node):
