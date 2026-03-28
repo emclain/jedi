@@ -395,6 +395,21 @@ print(name)
 +user = 'world'
 +msg = f'hello {user}'
 +print(user)
+# -------------------------------------------------- fstring-format-spec
+#? 0 {'new_name': 'w'}
+width = 10
+value = 3.14
+result = f"{value:{width}.2f}"
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'w'}
+-width = 10
++w = 10
+ value = 3.14
+-result = f"{value:{width}.2f}"
++result = f"{value:{w}.2f}"
 # -------------------------------------------------- except-as-var
 try:
     pass
