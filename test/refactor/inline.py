@@ -652,3 +652,17 @@ def f():
 +@some_module.decorator
  def f():
      pass
+# -------------------------------------------------- walrus-in-if-condition-error
+def f(data):
+    #? 8 error
+    if (n := len(data)) > 10:
+        pass
+    return n
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot inline a namedexpr_test
+# -------------------------------------------------- walrus-in-comprehension-filter-error
+#? 10 error
+result = [y for x in data if (y := f(x)) > 0]
+use(y)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot inline a namedexpr_test
