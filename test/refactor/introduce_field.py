@@ -179,6 +179,38 @@ class MyClass:
             #? 12 text
             self.x = i * 2
         return self.x
+# -------------------------------------------------- variable-before-loop-used-in-for-body
+class MyClass:
+    def foo(self):
+        #? 8 text
+        x = 0
+        for i in range(10):
+            x += i
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        #? 8 text
+        self.x = 0
+        for i in range(10):
+            self.x += i
+        return self.x
+# -------------------------------------------------- variable-before-loop-used-in-while-body
+class MyClass:
+    def foo(self):
+        #? 8 text
+        x = 0
+        while x < 10:
+            x += 1
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        #? 8 text
+        self.x = 0
+        while self.x < 10:
+            self.x += 1
+        return self.x
 # -------------------------------------------------- inline-comment-on-assignment
 class MyClass:
     def foo(self):
