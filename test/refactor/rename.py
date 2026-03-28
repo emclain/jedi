@@ -279,6 +279,19 @@ x = [x for x in range(10)]
  #? 0 {'new_name': 'y'}
 -x = [x for x in range(10)]
 +y = [x for x in range(10)]
+# -------------------------------------------------- comprehension-iterable-outer-var
+#? 0 {'new_name': 'data'}
+items = [1, 2, 3]
+result = [items for items in items]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'data'}
+-items = [1, 2, 3]
+-result = [items for items in items]
++data = [1, 2, 3]
++result = [items for items in data]
 # -------------------------------------------------- global-from-function
 x_var = 1
 def f():
