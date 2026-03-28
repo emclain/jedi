@@ -535,3 +535,23 @@ def inner():
 -    return x
 +    y = 20
 +    return y
+# -------------------------------------------------- shadow-builtin
+def shadow():
+    #? 4 {'new_name': 'lst'}
+    list = []
+    list.append(1)
+    return list
+other = list(range(3))
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ def shadow():
+     #? 4 {'new_name': 'lst'}
+-    list = []
+-    list.append(1)
+-    return list
++    lst = []
++    lst.append(1)
++    return lst
+ other = list(range(3))
