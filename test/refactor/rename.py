@@ -790,3 +790,18 @@ class MyClass:
 +        return this.x
      def method2(self):
          self.x = 1
+# -------------------------------------------------- multiple-assignment-target
+#? 0 {'new_name': 'x'}
+a = b = 1
+print(a)
+print(b)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'x'}
+-a = b = 1
+-print(a)
++x = b = 1
++print(x)
+ print(b)
