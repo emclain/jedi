@@ -702,3 +702,27 @@ def f():
 -        x = 1
 +        global y
 +        y = 1
+# -------------------------------------------------- property-setter-rename
+class Foo:
+    @property
+    #? 8 {'new_name': 'value'}
+    def x(self):
+        return self._x
+    @x.setter
+    def x(self, v):
+        self._x = v
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,9 +1,9 @@
+ class Foo:
+     @property
+     #? 8 {'new_name': 'value'}
+-    def x(self):
++    def value(self):
+         return self._x
+-    @x.setter
+-    def x(self, v):
++    @value.setter
++    def value(self, v):
+         self._x = v
