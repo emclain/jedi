@@ -555,3 +555,16 @@ other = list(range(3))
 +    lst.append(1)
 +    return lst
  other = list(range(3))
+# -------------------------------------------------- comprehension-iterable-outer-var
+#? 0 {'new_name': 'items'}
+x = [1, 2, 3]
+result = [x for x in x]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'items'}
+-x = [1, 2, 3]
+-result = [x for x in x]
++items = [1, 2, 3]
++result = [x for x in items]
