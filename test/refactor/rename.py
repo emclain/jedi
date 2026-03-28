@@ -771,6 +771,25 @@ print(b)
 -print(b)
 +a, *rest, c = [1, 2, 3, 4, 5]
 +print(rest)
+# -------------------------------------------------- self-param-rename
+class MyClass:
+    #? 16 {'new_name': 'this'}
+    def method1(self):
+        return self.x
+    def method2(self):
+        self.x = 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ class MyClass:
+     #? 16 {'new_name': 'this'}
+-    def method1(self):
+-        return self.x
++    def method1(this):
++        return this.x
+     def method2(self):
+         self.x = 1
 # -------------------------------------------------- annotated-no-value
 #? 0 {'new_name': 'y'}
 x: int
