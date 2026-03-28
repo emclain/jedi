@@ -652,6 +652,22 @@ def f():
 +@some_module.decorator
  def f():
      pass
+# -------------------------------------------------- decorator-value
+#? 0
+base = some_decorator
+@base
+def f():
+    pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,6 +1,5 @@
+ #? 0
+-base = some_decorator
+-@base
++@some_decorator
+ def f():
+     pass
 # -------------------------------------------------- walrus-in-if-condition-error
 def f(data):
     #? 8 error
