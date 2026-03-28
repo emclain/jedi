@@ -543,3 +543,27 @@ result = fn(x, base=fn)
 -fn = str
 -result = fn(x, base=fn)
 +result = str(x, base=str)
+# -------------------------------------------------- ternary-condition
+#? 0
+a = x > 0
+result = val if a else default
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = x > 0
+-result = val if a else default
++result = val if x > 0 else default
+# -------------------------------------------------- ternary-true-branch
+#? 0
+a = expensive()
+result = a if flag else 0
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = expensive()
+-result = a if flag else 0
++result = expensive() if flag else 0
