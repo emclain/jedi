@@ -578,3 +578,31 @@ print(x)
 +except ValueError as exc:
 +    print(exc)
 +print(exc)
+# -------------------------------------------------- comprehension-iterable-outer-var
+#? 0 {'new_name': 'items'}
+x = [1, 2, 3]
+result = [x for x in x]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'items'}
+-x = [1, 2, 3]
+-result = [x for x in x]
++items = [1, 2, 3]
++result = [x for x in items]
+# -------------------------------------------------- class-body-module-var
+#? 0 {'new_name': 'module_val'}
+module_var = 42
+class Foo:
+    bar = module_var + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'module_val'}
+-module_var = 42
++module_val = 42
+ class Foo:
+-    bar = module_var + 1
++    bar = module_val + 1
