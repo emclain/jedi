@@ -615,3 +615,31 @@ assert x < limit, f'x must be < {limit}'
 -limit = 100
 -assert x < limit, f'x must be < {limit}'
 +assert x < 100, f'x must be < {100}'
+# -------------------------------------------------- await-expression
+async def f():
+    #? 4
+    a = await something()
+    return a + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ async def f():
+     #? 4
+-    a = await something()
+-    return a + 1
++    return await something() + 1
+# -------------------------------------------------- default-arg-value
+#? 0
+timeout = 30
+def connect(host, t=timeout):
+    pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ #? 0
+-timeout = 30
+-def connect(host, t=timeout):
++def connect(host, t=30):
+     pass
