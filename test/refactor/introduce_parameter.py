@@ -225,3 +225,10 @@ def foo(**kwargs):
     return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter after **kwargs
+# -------------------------------------------------- multiple-assignment-targets-error
+def foo():
+    #? 4 error
+    a = b = 1
+    return a + b
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter from a statement with multiple definitions
