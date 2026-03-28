@@ -158,17 +158,17 @@ git branch -d "work/$CLAIMED_ID"
 ```
 </details>
 
-### 4. **MANDATORY: Reflect on Startup** (do this even if everything went smoothly)
+### 4. **MANDATORY: Reflect on Workflow** (do this even if everything went smoothly)
 
-Before stopping, explicitly confirm or improve the startup experience:
+Before stopping, explicitly confirm or improve the workflow experience:
 
-- **If startup was smooth:** write one sentence saying so (e.g., "Startup was clean — no issues").
-- **If `scripts/agent-start.sh` failed or was incomplete:** improve it.
+- **If workflow was smooth:** write one sentence saying so (e.g., "Workflow was clean — no issues").
+- **If `scripts/agent-start.sh` or `agent-land.sh` failed or was incomplete:** improve it.
 - **If setup instructions in AGENTS.md were wrong or missing a step:** update them.
 - **If a new category of obstacle appeared:** add it to the script's guard logic.
-- **If any step is currently prose instructions:** convert it to scripted commands in `agent-start.sh` — scripts are more reliable than prose and should be preferred wherever possible.
+- **If any step is currently prose instructions:** convert it to scripted commands in `agent-*.sh` — scripts are more reliable than prose and should be preferred wherever possible.
 
-The goal: the next agent should be able to run `bash scripts/agent-start.sh` and end up in a worktree ready to work with no manual intervention.
+The goal: the next agent should be able to run `bash scripts/agent-start.sh` and end up in a worktree ready to work with no manual intervention; then do their work and run `bash scripts/agent-land.sh` to successfully "land the plane" and push work back to origin.
 
 **Stop after one issue.** Do not loop back to claim another.
 
