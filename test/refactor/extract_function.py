@@ -76,6 +76,24 @@ def ab(x):
 def f(x):
 #? 11 text {'new_name': 'ab'}
     return ab(x)
+# -------------------------------------------------- in-function-with-stacked-decs
+@decorator_a
+@decorator_b
+@decorator_c
+def f(x):
+#? 11 text {'new_name': 'ab'}
+    return x + 1 * 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def ab(x):
+    return x + 1 * 2
+
+
+@decorator_a
+@decorator_b
+@decorator_c
+def f(x):
+#? 11 text {'new_name': 'ab'}
+    return ab(x)
 # -------------------------------------------------- in-method-1
 class X:
     def z(self): pass
