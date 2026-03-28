@@ -1,7 +1,5 @@
-from parso import split_lines
-
 from jedi.api.exceptions import RefactoringError
-from jedi.api.refactoring import Refactoring
+from jedi.api.refactoring import Refactoring, _remove_indent_of_prefix
 
 
 def introduce_parameter(inference_state, path, module_node, name, pos):
@@ -268,35 +266,49 @@ def _has_field_reference(node, self_name, var_name):
     return any(_has_field_reference(child, self_name, var_name) for child in children)
 
 
+def _walk_name_references(node, name, callback):
+    """
+    Walk the node tree, calling callback(leaf) for every name leaf whose
+    value equals *name*, subject to the standard guards:
+    - do not descend into nested funcdef/async_funcdef/classdef nodes
+    - skip trailer nodes that begin with '.' (attribute access)
+    - skip leaf nodes that are themselves the RHS of a dot (i.e., the leaf's
+      parent is a trailer whose first child is '.')
+    """
+    try:
+        children = node.children
+    except AttributeError:
+        # Leaf node
+        if node.type == 'name' and node.value == name:
+            if node.parent.type == 'trailer' and node.parent.children[0] == '.':
+                return
+            callback(node)
+        return
+
+    if node.type in ('funcdef', 'async_funcdef', 'classdef'):
+        return
+
+    for child in children:
+        if child.type == 'trailer' and child.children[0] == '.':
+            continue
+        _walk_name_references(child, name, callback)
+
+
 def _replace_references_with_field(node, var_name, field_ref, definition_leaf, node_changes):
     """
     Recursively find references to var_name in node and replace them
     with field_ref (e.g., self.var_name). Skip the definition itself
     and names that are part of attribute access (x.something is already handled).
     """
-    try:
-        children = node.children
-    except AttributeError:
-        # Leaf node
-        if node.type == 'name' and node.value == var_name and node is not definition_leaf:
-            # Don't replace if this is already part of self.x (i.e., after a dot)
-            if node.parent.type == 'trailer' and node.parent.children[0] == '.':
-                return
-            # Don't replace parameter names
-            if node.parent.type in ('param', 'typedargslist'):
-                return
-            node_changes[node] = node.prefix + field_ref
-        return
+    def _apply(leaf):
+        if leaf is definition_leaf:
+            return
+        # Don't replace parameter names
+        if leaf.parent.type in ('param', 'typedargslist'):
+            return
+        node_changes[leaf] = leaf.prefix + field_ref
 
-    # Don't descend into nested function/class definitions for the same name
-    if node.type in ('funcdef', 'async_funcdef', 'classdef'):
-        return
-
-    for child in children:
-        # Skip trailer nodes that start with '.' (attribute access)
-        if child.type == 'trailer' and child.children[0] == '.':
-            continue
-        _replace_references_with_field(child, var_name, field_ref, definition_leaf, node_changes)
+    _walk_name_references(node, var_name, _apply)
 
 
 def _rename_in_scope(funcdef, old_name, new_name, node_changes):
@@ -308,23 +320,11 @@ def _rename_in_scope(funcdef, old_name, new_name, node_changes):
 
 
 def _rename_references(node, old_name, new_name, node_changes):
-    try:
-        children = node.children
-    except AttributeError:
-        if node.type == 'name' and node.value == old_name:
-            if node.parent.type == 'trailer' and node.parent.children[0] == '.':
-                return
-            if node not in node_changes:
-                node_changes[node] = node.prefix + new_name
-        return
+    def _apply(leaf):
+        if leaf not in node_changes:
+            node_changes[leaf] = leaf.prefix + new_name
 
-    if node.type in ('funcdef', 'async_funcdef', 'classdef'):
-        return
-
-    for child in children:
-        if child.type == 'trailer' and child.children[0] == '.':
-            continue
-        _rename_references(child, old_name, new_name, node_changes)
+    _walk_name_references(node, old_name, _apply)
 
 
 def _is_call_expr(node):
@@ -334,10 +334,3 @@ def _is_call_expr(node):
             if child.type == 'trailer' and child.children[0].value == '(':
                 return True
     return False
-
-
-def _remove_indent_of_prefix(prefix):
-    r"""
-    Removes the last indentation of a prefix, e.g. " \n \n " becomes " \n \n".
-    """
-    return ''.join(split_lines(prefix, keepends=True)[:-1])
