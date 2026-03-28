@@ -643,3 +643,15 @@ def connect(host, t=timeout):
 -def connect(host, t=timeout):
 +def connect(host, t=30):
      pass
+# -------------------------------------------------- power-left-operand
+#? 0
+a = 2**3
+test(a**2)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,4 +1,3 @@
+ #? 0
+-a = 2**3
+-test(a**2)
++test((2**3)**2)
