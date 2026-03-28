@@ -840,3 +840,33 @@ print(a)
 -print(a)
 +msg = (f"first={renamed_a} " f"second={b}")
 +print(renamed_a)
+# -------------------------------------------------- shebang-preserved
+#!/usr/bin/env python3
+#? 0 {'new_name': 'new_var'}
+old_var = 42
+use(old_var)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+ #? 0 {'new_name': 'new_var'}
+-old_var = 42
+-use(old_var)
++new_var = 42
++use(new_var)
+# -------------------------------------------------- encoding-preserved
+# -*- coding: utf-8 -*-
+#? 0 {'new_name': 'new_var'}
+old_var = 42
+use(old_var)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ # -*- coding: utf-8 -*-
+ #? 0 {'new_name': 'new_var'}
+-old_var = 42
+-use(old_var)
++new_var = 42
++use(new_var)
