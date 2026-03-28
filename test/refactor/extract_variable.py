@@ -432,3 +432,8 @@ async def test():
     #? 13 text {'new_name': 'val'}
     val = await something()
     result = val
+# -------------------------------------------------- walrus-in-filter
+#? 24 error {'new_name': 'extracted'}
+[y for x in data if (y := f(x)) > 0]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot extract a "walrus operator (:=)"
