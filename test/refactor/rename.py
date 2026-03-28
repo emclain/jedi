@@ -395,6 +395,21 @@ print(name)
 +user = 'world'
 +msg = f'hello {user}'
 +print(user)
+# -------------------------------------------------- fstring-format-spec
+#? 0 {'new_name': 'w'}
+width = 10
+value = 3.14
+result = f"{value:{width}.2f}"
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'w'}
+-width = 10
++w = 10
+ value = 3.14
+-result = f"{value:{width}.2f}"
++result = f"{value:{w}.2f}"
 # -------------------------------------------------- except-as-var
 try:
     pass
@@ -412,6 +427,29 @@ except ValueError as err:
 -    print(err)
 +except ValueError as exc:
 +    print(exc)
+# -------------------------------------------------- except-as-var-shadows-outer
+x = 1
+try:
+    pass
+#? 21 {'new_name': 'exc'}
+except ValueError as x:
+    print(x)
+print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,8 +1,8 @@
+-x = 1
++exc = 1
+ try:
+     pass
+ #? 21 {'new_name': 'exc'}
+-except ValueError as x:
+-    print(x)
+-print(x)
++except ValueError as exc:
++    print(exc)
++print(exc)
 # -------------------------------------------------- global-decl
 #? 0 {'new_name': 'y'}
 x = 10
@@ -568,6 +606,29 @@ other = list(range(3))
 +    lst.append(1)
 +    return lst
  other = list(range(3))
+# -------------------------------------------------- except-as-shadows-outer
+x = 'outer'
+try:
+    pass
+#? 21 {'new_name': 'exc'}
+except ValueError as x:
+    print(x)
+print(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,8 +1,8 @@
+-x = 'outer'
++exc = 'outer'
+ try:
+     pass
+ #? 21 {'new_name': 'exc'}
+-except ValueError as x:
+-    print(x)
+-print(x)
++except ValueError as exc:
++    print(exc)
++print(exc)
 # -------------------------------------------------- comprehension-iterable-outer-var
 #? 0 {'new_name': 'items'}
 x = [1, 2, 3]
