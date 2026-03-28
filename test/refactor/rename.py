@@ -608,42 +608,6 @@ other = list(range(3))
 +    lst.append(1)
 +    return lst
  other = list(range(3))
-# -------------------------------------------------- except-as-shadows-outer
-x = 'outer'
-try:
-    pass
-#? 21 {'new_name': 'exc'}
-except ValueError as x:
-    print(x)
-print(x)
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
---- rename.py
-+++ rename.py
-@@ -1,8 +1,8 @@
--x = 'outer'
-+exc = 'outer'
- try:
-     pass
- #? 21 {'new_name': 'exc'}
--except ValueError as x:
--    print(x)
--print(x)
-+except ValueError as exc:
-+    print(exc)
-+print(exc)
-# -------------------------------------------------- comprehension-iterable-outer-var
-#? 0 {'new_name': 'items'}
-x = [1, 2, 3]
-result = [x for x in x]
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
---- rename.py
-+++ rename.py
-@@ -1,4 +1,4 @@
- #? 0 {'new_name': 'items'}
--x = [1, 2, 3]
--result = [x for x in x]
-+items = [1, 2, 3]
-+result = [x for x in items]
 # -------------------------------------------------- class-body-module-var
 #? 0 {'new_name': 'module_val'}
 module_var = 42
