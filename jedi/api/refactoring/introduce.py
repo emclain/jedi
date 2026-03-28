@@ -50,6 +50,11 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             )
 
     rhs = expr_stmt.get_rhs()
+    if _is_call_expr(rhs):
+        raise RefactoringError(
+            "Cannot use a call expression as a default value: "
+            "it would be evaluated once at definition time, not on each call"
+        )
     default_value = rhs.get_code(include_prefix=False)
 
     # Find the enclosing function
@@ -270,6 +275,15 @@ def _rename_references(node, old_name, new_name, node_changes):
         if child.type == 'trailer' and child.children[0] == '.':
             continue
         _rename_references(child, old_name, new_name, node_changes)
+
+
+def _is_call_expr(node):
+    """Return True if node is a call expression (e.g., foo(), obj.method())."""
+    if node.type in ('atom_expr', 'power'):
+        for child in node.children:
+            if child.type == 'trailer' and child.children[0].value == '(':
+                return True
+    return False
 
 
 def _remove_indent_of_prefix(prefix):

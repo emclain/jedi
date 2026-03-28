@@ -204,13 +204,8 @@ def bar():
     return 42
 
 def foo():
-    #? 4 text
+    #? 4 error
     x = bar()
     return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def bar():
-    return 42
-
-def foo(x=bar()):
-    #? 4 text
-    return x
+Cannot use a call expression as a default value: it would be evaluated once at definition time, not on each call
