@@ -1,3 +1,62 @@
+# Goals
+
+I want to add to the test coverage of refactorings in jedi, finding
+edge cases and seeing if there are issues that haven't been handled.
+
+In addition, I want to expand the refactorings available, starting
+with the Core 6 refactorings described by Arlo Belshee for the Read by
+Refactoring method. Here is a quote from Arlo's blog:
+https://arlobelshee.com/the-core-6-refactorings/
+
+  The Core 6 refactorings are:
+
+ -   Rename
+ -   Inline
+ -   Extract Method
+ -   Introduce Local Variable
+ -   Introduce Parameter
+ -   Introduce Field
+
+  These are the Core 6 because the most important thing we need to do
+  when reading indebted code is to name it. We execute our core
+  understanding loop: look at something, have an insight, write it down,
+  check it in. The write it down step is always a transformation on
+  names.
+
+  CRUD for Names
+
+  The core 6 are simply CRUD for the domain of names.
+
+ -   Create: Introduce Local Variable, Extract Method, Introduce Parameter, Introduce Field.
+ -   Read: (performed by the human; no refactoring needed)
+ -   Update: Rename
+ -   Delete: Inline
+
+  In a typical refactoring IDE, Rename and Inline operate on anything
+  which is namable, but there is a distinct Create operation per kind of
+  thing you want to create.
+
+  In typical OO languages, there are 4 things* we can name: local
+  variables, methods, parameters, fields. There are also classes, but
+  those are different. I think of variables, methods, parameters, and
+  fields as scalars. They are atomic, simple things. Classes are
+  compositions; they compose scalars together.
+
+# Work Tracking
+
+As a work tracking system, we use Beads (see instructions below)
+https://github.com/steveyegge/beads
+instead of unstructured markdown or Claude memory files. Start with a
+plan and work your way through breaking it down into smaller pieces,
+filing beads as you go.
+
+If you find issues impeding your work, file them as beads rather than
+context switching to try to fix them.
+
+Work in small bites, file beads as you go, and push your changes
+without my prompting. When you reach the end of your context window,
+prefer to use beads as your memory and quit rather than compacting.
+
 # Agent Instructions
 
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
