@@ -416,3 +416,10 @@ foo(y)
 #? 12 text {'new_name': 'items'}
 items = x
 [x for x in items]
+# -------------------------------------------------- ternary-branch
+#? 9 text {'new_name': 'v', 'until_column': 14}
+result = a + 1 if x else b
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 9 text {'new_name': 'v', 'until_column': 14}
+v = a + 1
+result = v if x else b
