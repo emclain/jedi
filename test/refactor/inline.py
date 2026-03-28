@@ -678,3 +678,17 @@ result = some_func(val, key=val)
 -val = 42
 -result = some_func(val, key=val)
 +result = some_func(42, key=42)
+# -------------------------------------------------- with-context-manager
+#? 0
+x = open('f')
+with x as fh:
+    pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,5 +1,4 @@
+ #? 0
+-x = open('f')
+-with x as fh:
++with open('f') as fh:
+     pass
