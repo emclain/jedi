@@ -130,13 +130,15 @@ git worktree remove --force ../jedi-$claimed  # --force needed because worktree 
 git branch -d work/$claimed
 ```
 
-### 4. Reflect on Startup Stumbling Blocks
+### 4. **MANDATORY: Reflect on Startup** (do this even if everything went smoothly)
 
-Before stopping, think back on any friction you hit during startup and document or fix it:
+Before stopping, explicitly confirm or improve the startup experience:
 
-- If `scripts/agent-start.sh` failed or was incomplete, improve it.
-- If the setup instructions in AGENTS.md were wrong or missing a step, update them.
-- If a new category of obstacle appeared, add it to the script's guard logic.
+- **If startup was smooth:** write one sentence saying so (e.g., "Startup was clean — no issues").
+- **If `scripts/agent-start.sh` failed or was incomplete:** improve it.
+- **If setup instructions in AGENTS.md were wrong or missing a step:** update them.
+- **If a new category of obstacle appeared:** add it to the script's guard logic.
+- **If any step is currently prose instructions:** convert it to scripted commands in `agent-start.sh` — scripts are more reliable than prose and should be preferred wherever possible.
 
 The goal: the next agent should be able to run `bash scripts/agent-start.sh` and end up in a worktree ready to work with no manual intervention.
 
