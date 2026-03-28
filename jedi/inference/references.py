@@ -122,21 +122,16 @@ def _find_nonlocal_variables(module_context, names, search_name):
     if not found_tree_names:
         return
 
-    # Get root module node to scan for nonlocal declarations
-    root = next(iter(found_tree_names))
-    while root.parent is not None:
-        root = root.parent
-
     nonlocal_stmts = [
         used_name
-        for used_name in root.get_used_names().get(search_name, [])
+        for used_name in module_context.tree_node.get_used_names().get(search_name, [])
         if used_name.parent.type == 'nonlocal_stmt'
     ]
 
     if not nonlocal_stmts:
         return
 
-    for name in list(names):
+    for name in names:
         if name.tree_name is None or name.tree_name.parent.type == 'nonlocal_stmt':
             continue
 
