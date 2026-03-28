@@ -97,6 +97,22 @@ class MyClass:
         return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a field: the method has no self parameter
+# -------------------------------------------------- args-only-param-error
+class MyClass:
+    def foo(*args):
+        #? 8 error
+        x = 42
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field: the method has no self parameter
+# -------------------------------------------------- kwargs-only-param-error
+class MyClass:
+    def foo(**kwargs):
+        #? 8 error
+        x = 42
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field: the method has no self parameter
 # -------------------------------------------------- field-already-exists-error
 class MyClass:
     def foo(self):

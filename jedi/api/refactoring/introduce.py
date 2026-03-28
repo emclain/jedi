@@ -171,7 +171,7 @@ def introduce_field(inference_state, path, module_node, pos):
 
     # Get the self parameter name
     params = funcdef.get_params()
-    if not params:
+    if not params or params[0].star_count != 0:
         raise RefactoringError(
             "Cannot introduce a field: the method has no self parameter"
         )
