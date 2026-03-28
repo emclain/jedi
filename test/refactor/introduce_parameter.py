@@ -41,6 +41,13 @@ def foo():
     return len(items)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot use a mutable literal as a parameter default
+# -------------------------------------------------- set-default
+def foo():
+    #? 4 error
+    items = {1, 2, 3}
+    return len(items)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot use a mutable literal as a parameter default
 # -------------------------------------------------- nested-function
 def outer():
     def inner():
