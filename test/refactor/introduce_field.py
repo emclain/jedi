@@ -54,6 +54,18 @@ class MyClass:
         #? 8 text
         cls.x = 42
         return cls.x + 1
+# -------------------------------------------------- nonconventional-self-param
+class MyClass:
+    def foo(this):
+        #? 8 text
+        x = 42
+        return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(this):
+        #? 8 text
+        this.x = 42
+        return this.x + 1
 # -------------------------------------------------- in-conditional
 class MyClass:
     def foo(self):
@@ -99,3 +111,12 @@ class MyClass:
         return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a field: the method has no self parameter
+# -------------------------------------------------- field-already-exists-error
+class MyClass:
+    def foo(self):
+        #? 8 error
+        x = 42
+        self.x = 99
+        return self.x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field: self.x already exists in the method
