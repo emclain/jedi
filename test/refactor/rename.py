@@ -790,3 +790,21 @@ class MyClass:
 +        return this.x
      def method2(self):
          self.x = 1
+# -------------------------------------------------- dunder-all-not-updated
+__all__ = ['foo', 'bar']
+#? 4 {'new_name': 'baz'}
+def foo():
+    pass
+def bar():
+    pass
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,6 +1,6 @@
+ __all__ = ['foo', 'bar']
+ #? 4 {'new_name': 'baz'}
+-def foo():
++def baz():
+     pass
+ def bar():
+     pass
