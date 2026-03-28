@@ -555,3 +555,23 @@ other = list(range(3))
 +    lst.append(1)
 +    return lst
  other = list(range(3))
+# -------------------------------------------------- global-decl-nested
+#? 0 {'new_name': 'y'}
+x = 0
+def f():
+    def g():
+        global x
+        x = 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ #? 0 {'new_name': 'y'}
+-x = 0
++y = 0
+ def f():
+     def g():
+-        global x
+-        x = 1
++        global y
++        y = 1
