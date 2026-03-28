@@ -165,6 +165,13 @@ def introduce_field(inference_state, path, module_node, pos):
     var_name = leaf.value
     field_ref = self_name + '.' + var_name
 
+    # Check that self.var_name doesn't already exist in the method body
+    suite = _get_funcdef_suite(funcdef)
+    if suite is not None and _has_field_reference(suite, self_name, var_name):
+        raise RefactoringError(
+            "Cannot introduce a field: %s already exists in the method" % field_ref
+        )
+
     # Build node changes:
     # 1. Replace the definition `x = expr` with `self.x = expr`
     # 2. Replace all references to `x` within the function with `self.x`
@@ -211,6 +218,39 @@ def _get_funcdef_suite(funcdef):
         if child.type == 'suite':
             return child
     return None
+
+
+def _has_field_reference(node, self_name, var_name):
+    """
+    Return True if the node tree contains a reference to self_name.var_name
+    (i.e., an attribute access like `self.x`).
+    """
+    try:
+        children = node.children
+    except AttributeError:
+        # Leaf node: check if it is `var_name` preceded by `self_name.`
+        if node.type == 'name' and node.value == var_name:
+            parent = node.parent
+            # The pattern for `self.x` is: expr -> trailer -> ['.', 'x']
+            # parent of 'x' is a trailer node, parent of that has self_name before it
+            if (parent is not None and parent.type == 'trailer'
+                    and len(parent.children) == 2
+                    and parent.children[0] == '.'):
+                # The trailer's parent should have self_name as an adjacent child
+                grandparent = parent.parent
+                if grandparent is not None:
+                    siblings = grandparent.children
+                    trailer_idx = siblings.index(parent)
+                    if trailer_idx > 0:
+                        prev = siblings[trailer_idx - 1]
+                        if prev.type == 'name' and prev.value == self_name:
+                            return True
+        return False
+
+    if node.type in ('funcdef', 'async_funcdef', 'classdef'):
+        return False
+
+    return any(_has_field_reference(child, self_name, var_name) for child in children)
 
 
 def _replace_references_with_field(node, var_name, field_ref, definition_leaf, node_changes):
