@@ -870,3 +870,32 @@ use(old_var)
 -use(old_var)
 +new_var = 42
 +use(new_var)
+# -------------------------------------------------- try-except-else-finally
+def f():
+    try:
+#? 8 {'new_name': 'data'}
+        x = risky()
+    except Exception:
+        x = default()
+    else:
+        use(x)
+    finally:
+        cleanup(x)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,11 +1,11 @@
+ def f():
+     try:
+ #? 8 {'new_name': 'data'}
+-        x = risky()
++        data = risky()
+     except Exception:
+-        x = default()
++        data = default()
+     else:
+-        use(x)
++        use(data)
+     finally:
+-        cleanup(x)
++        cleanup(data)
