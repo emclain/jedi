@@ -36,13 +36,11 @@ def foo(x=1 + 2 + 3):
     return x
 # -------------------------------------------------- list-default
 def foo():
-    #? 4 text
+    #? 4 error
     items = [1, 2, 3]
     return len(items)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def foo(items=[1, 2, 3]):
-    #? 4 text
-    return len(items)
+Cannot use a mutable literal as a parameter default
 # -------------------------------------------------- nested-function
 def outer():
     def inner():
@@ -124,13 +122,11 @@ def foo(callback=None):
         callback()
 # -------------------------------------------------- dict-default
 def foo():
-    #? 4 text
+    #? 4 error
     config = {"key": "value"}
     return config
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def foo(config={"key": "value"}):
-    #? 4 text
-    return config
+Cannot use a mutable literal as a parameter default
 # -------------------------------------------------- tuple-default
 def foo():
     #? 4 text

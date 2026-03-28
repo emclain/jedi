@@ -50,6 +50,14 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             )
 
     rhs = expr_stmt.get_rhs()
+
+    # Reject mutable literal defaults (lists and dicts/sets) because they would
+    # share the same object across all calls, unlike a fresh local variable.
+    if rhs.type == 'atom' and rhs.children[0].value in ('[', '{'):
+        raise RefactoringError(
+            "Cannot use a mutable literal as a parameter default"
+        )
+
     default_value = rhs.get_code(include_prefix=False)
 
     # Find the enclosing function
