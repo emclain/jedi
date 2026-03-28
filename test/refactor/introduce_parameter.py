@@ -36,13 +36,11 @@ def foo(x=1 + 2 + 3):
     return x
 # -------------------------------------------------- list-default
 def foo():
-    #? 4 text
+    #? 4 error
     items = [1, 2, 3]
     return len(items)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def foo(items=[1, 2, 3]):
-    #? 4 text
-    return len(items)
+Cannot use a mutable literal as a parameter default
 # -------------------------------------------------- nested-function
 def outer():
     def inner():
@@ -124,13 +122,11 @@ def foo(callback=None):
         callback()
 # -------------------------------------------------- dict-default
 def foo():
-    #? 4 text
+    #? 4 error
     config = {"key": "value"}
     return config
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def foo(config={"key": "value"}):
-    #? 4 text
-    return config
+Cannot use a mutable literal as a parameter default
 # -------------------------------------------------- tuple-default
 def foo():
     #? 4 text
@@ -204,16 +200,24 @@ def bar():
     return 42
 
 def foo():
-    #? 4 text
+    #? 4 error
     x = bar()
     return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-def bar():
-    return 42
-
-def foo(x=bar()):
+Cannot use a call expression as a default value: it would be evaluated once at definition time, not on each call
+# -------------------------------------------------- call-site-unchanged
+def foo():
     #? 4 text
-    return x
+    x = 42
+    return x + 1
+
+result = foo()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def foo(x=42):
+    #? 4 text
+    return x + 1
+
+result = foo()
 # -------------------------------------------------- nested-class-var-error
 def a():
     class Foo:

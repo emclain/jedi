@@ -26,30 +26,6 @@ class MyClass:
         a = self.x + 1
         b = self.x * 2
         return a + b + self.x
-# -------------------------------------------------- string-value
-class MyClass:
-    def foo(self):
-        #? 8 text
-        name = "hello"
-        return name
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-class MyClass:
-    def foo(self):
-        #? 8 text
-        self.name = "hello"
-        return self.name
-# -------------------------------------------------- expression-value
-class MyClass:
-    def foo(self):
-        #? 8 text
-        result = 1 + 2 + 3
-        return result
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-class MyClass:
-    def foo(self):
-        #? 8 text
-        self.result = 1 + 2 + 3
-        return self.result
 # -------------------------------------------------- with-other-locals
 class MyClass:
     def foo(self):
@@ -78,18 +54,18 @@ class MyClass:
         #? 8 text
         cls.x = 42
         return cls.x + 1
-# -------------------------------------------------- list-value
+# -------------------------------------------------- nonconventional-self-param
 class MyClass:
-    def foo(self):
+    def foo(this):
         #? 8 text
-        items = [1, 2, 3]
-        return len(items)
+        x = 42
+        return x + 1
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 class MyClass:
-    def foo(self):
+    def foo(this):
         #? 8 text
-        self.items = [1, 2, 3]
-        return len(self.items)
+        this.x = 42
+        return this.x + 1
 # -------------------------------------------------- in-conditional
 class MyClass:
     def foo(self):
@@ -135,44 +111,15 @@ class MyClass:
         return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a field: the method has no self parameter
-# -------------------------------------------------- none-value
+# -------------------------------------------------- field-already-exists-error
 class MyClass:
     def foo(self):
-        #? 8 text
-        callback = None
-        if callback:
-            callback()
+        #? 8 error
+        x = 42
+        self.x = 99
+        return self.x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
-class MyClass:
-    def foo(self):
-        #? 8 text
-        self.callback = None
-        if self.callback:
-            self.callback()
-# -------------------------------------------------- dict-value
-class MyClass:
-    def foo(self):
-        #? 8 text
-        config = {"key": "value"}
-        return config
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-class MyClass:
-    def foo(self):
-        #? 8 text
-        self.config = {"key": "value"}
-        return self.config
-# -------------------------------------------------- bool-value
-class MyClass:
-    def foo(self):
-        #? 8 text
-        active = True
-        return active
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-class MyClass:
-    def foo(self):
-        #? 8 text
-        self.active = True
-        return self.active
+Cannot introduce a field: self.x already exists in the method
 # -------------------------------------------------- nested-class-var-error
 def a():
     class Foo:
