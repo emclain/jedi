@@ -214,3 +214,10 @@ def bar():
 def foo(x=bar()):
     #? 4 text
     return x
+# -------------------------------------------------- nested-class-var-error
+def a():
+    class Foo:
+        #? 8 error
+        b = 7
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter: the variable is not inside a function

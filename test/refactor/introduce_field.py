@@ -173,3 +173,10 @@ class MyClass:
         #? 8 text
         self.active = True
         return self.active
+# -------------------------------------------------- nested-class-var-error
+def a():
+    class Foo:
+        #? 8 error
+        b = 7
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field: the variable is not inside a function

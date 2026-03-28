@@ -182,11 +182,13 @@ def introduce_field(inference_state, path, module_node, pos):
 
 
 def _find_enclosing_funcdef(node):
-    """Find the nearest enclosing funcdef or async_funcdef."""
+    """Find the nearest enclosing funcdef or async_funcdef, not crossing classdef boundaries."""
     parent = node.parent
     while parent is not None:
         if parent.type in ('funcdef', 'async_funcdef'):
             return parent
+        if parent.type == 'classdef':
+            return None
         parent = parent.parent
     return None
 
