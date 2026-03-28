@@ -113,3 +113,15 @@ def a():
         b = 7
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a field: the variable is not inside a function
+# -------------------------------------------------- inline-comment-on-assignment
+class MyClass:
+    def foo(self):
+        #? 8 text
+        x = 42  # important value
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def foo(self):
+        #? 8 text
+        self.x = 42  # important value
+        return self.x
