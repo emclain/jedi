@@ -409,3 +409,10 @@ foo(...)
 #? 4 text {'new_name': 'y', 'until_column': 7}
 y = ...
 foo(y)
+# -------------------------------------------------- comprehension-iterable-shadow
+#? 12 text {'new_name': 'items'}
+[x for x in x]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+#? 12 text {'new_name': 'items'}
+items = x
+[x for x in items]
