@@ -84,8 +84,12 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
     node_changes = {}
     parameters = funcdef.get_params()
     if parameters:
-        # Append after the last parameter
+        # Appending after **kwargs would produce a SyntaxError
         last_param = parameters[-1]
+        if last_param.children and last_param.children[0].value == '**':
+            raise RefactoringError(
+                "Cannot introduce a parameter after **kwargs"
+            )
         last_param_code = last_param.get_code(include_prefix=True)
         node_changes[last_param] = last_param_code + ', ' + new_param
     else:

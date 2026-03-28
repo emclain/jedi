@@ -225,3 +225,10 @@ def a():
         b = 7
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter: the variable is not inside a function
+# -------------------------------------------------- star-star-kwargs-error
+def foo(**kwargs):
+    #? 4 error
+    x = 42
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter after **kwargs
