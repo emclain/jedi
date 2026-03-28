@@ -165,3 +165,13 @@ class MyClass:
         #? 8 text
         self.x = 42  # important value
         return self.x
+# -------------------------------------------------- nested-function-closure-error
+class MyClass:
+    def foo(self):
+        #? 8 error
+        x = 42
+        def inner():
+            return x
+        return inner()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field: 'x' is referenced inside a nested function

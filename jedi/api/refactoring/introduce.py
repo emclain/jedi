@@ -187,6 +187,16 @@ def introduce_field(inference_state, path, module_node, pos):
             "Cannot introduce a field: %s already exists in the method" % field_ref
         )
 
+    # Check that the variable is not referenced inside a nested function.
+    # Such references are closures over the local variable; after the refactor
+    # the local no longer exists, but self.x cannot be substituted safely
+    # without knowing whether self is shadowed in the nested scope.
+    if suite is not None and _has_reference_in_nested_func(suite, var_name):
+        raise RefactoringError(
+            "Cannot introduce a field: '%s' is referenced inside a nested function"
+            % var_name
+        )
+
     # Build node changes:
     # 1. Replace the definition `x = expr` with `self.x = expr`
     # 2. Replace all references to `x` within the function with `self.x`
@@ -268,6 +278,46 @@ def _has_field_reference(node, self_name, var_name):
         return False
 
     return any(_has_field_reference(child, self_name, var_name) for child in children)
+
+
+def _has_reference_in_nested_func(node, name):
+    """
+    Return True if *name* is referenced as a free variable inside any nested
+    funcdef or async_funcdef within *node*.  Does not recurse past classdef
+    boundaries (a nested class creates its own scope).
+    """
+    try:
+        children = node.children
+    except AttributeError:
+        return False
+
+    if node.type == 'classdef':
+        return False
+
+    for child in children:
+        if child.type in ('funcdef', 'async_funcdef'):
+            if _name_used_in_func(child, name):
+                return True
+        else:
+            if _has_reference_in_nested_func(child, name):
+                return True
+    return False
+
+
+def _name_used_in_func(funcdef_node, name):
+    """Return True if *name* appears as a name leaf anywhere inside funcdef_node."""
+    try:
+        children = funcdef_node.children
+    except AttributeError:
+        return (funcdef_node.type == 'name'
+                and funcdef_node.value == name
+                and not (funcdef_node.parent.type == 'trailer'
+                         and funcdef_node.parent.children[0] == '.'))
+
+    for child in children:
+        if _name_used_in_func(child, name):
+            return True
+    return False
 
 
 def _walk_name_references(node, name, callback):
