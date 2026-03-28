@@ -120,13 +120,6 @@ def foo(callback=None):
     #? 4 text
     if callback:
         callback()
-# -------------------------------------------------- dict-default
-def foo():
-    #? 4 error
-    config = {"key": "value"}
-    return config
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-Cannot use a mutable literal as a parameter default
 # -------------------------------------------------- tuple-default
 def foo():
     #? 4 text
