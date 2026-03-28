@@ -513,7 +513,25 @@ test(x * a)
 -a = lst[0]
 -test(x * a)
 +test(x * lst[0])
-# -------------------------------------------------- kwarg-value-inline
+# -------------------------------------------------- except-clause
+#? 0
+exc_type = ValueError
+try:
+    risky()
+except exc_type as e:
+    handle(e)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- inline.py
++++ inline.py
+@@ -1,7 +1,6 @@
+ #? 0
+-exc_type = ValueError
+ try:
+     risky()
+-except exc_type as e:
++except ValueError as e:
+     handle(e)
+# -------------------------------------------------- keyword-arg-value
 #? 0
 fn = str
 result = fn(x, base=fn)
