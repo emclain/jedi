@@ -241,6 +241,15 @@ def f(a, b, /):
 def f(a, b, /, x=1):
     #? 4 text
     return a + b + x
+# -------------------------------------------------- bare-star-separator
+def f(a, *, b):
+    #? 4 text
+    x = 1
+    return a + b + x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def f(a, *, b, x=1):
+    #? 4 text
+    return a + b + x
 # -------------------------------------------------- async-function
 async def foo():
     #? 4 text
