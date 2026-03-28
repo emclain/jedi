@@ -822,3 +822,21 @@ print(precision)
 +result = f"result={f'{value:.{precision}f}'}"
 +print(value)
  print(precision)
+# -------------------------------------------------- fstring-multiline-concat
+#? 0 {'new_name': 'renamed_a'}
+a = 1
+b = 2
+msg = (f"first={a} " f"second={b}")
+print(a)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,6 +1,6 @@
+ #? 0 {'new_name': 'renamed_a'}
+-a = 1
++renamed_a = 1
+ b = 2
+-msg = (f"first={a} " f"second={b}")
+-print(a)
++msg = (f"first={renamed_a} " f"second={b}")
++print(renamed_a)
