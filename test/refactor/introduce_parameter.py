@@ -301,6 +301,51 @@ def outer():
     return inner
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter: 'x' is declared nonlocal in this function
+# -------------------------------------------------- conditional-block-error
+def f(cond):
+    if cond:
+        #? 8 error
+        x = 5
+    else:
+        x = 10
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter from an assignment inside a conditional block
+# -------------------------------------------------- for-loop-block-error
+def f(items):
+    for item in items:
+        #? 8 error
+        x = item
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter from an assignment inside a conditional block
+# -------------------------------------------------- while-loop-block-error
+def f():
+    while True:
+        #? 8 error
+        x = 1
+        break
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter from an assignment inside a conditional block
+# -------------------------------------------------- try-block-error
+def f():
+    try:
+        #? 8 error
+        x = 1
+    except Exception:
+        x = 0
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter from an assignment inside a conditional block
+# -------------------------------------------------- with-block-error
+def f(ctx):
+    with ctx:
+        #? 8 error
+        x = 1
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter from an assignment inside a conditional block
 # -------------------------------------------------- fstring-with-vars-error
 def foo():
     val = 10

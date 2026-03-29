@@ -83,6 +83,14 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             % var_name
         )
 
+    # Reject assignments nested inside control-flow blocks (if/for/while/try/with).
+    # Removing only one branch assignment while leaving sibling assignments would
+    # silently override the new parameter at runtime.
+    if _is_in_control_flow_block(expr_stmt, funcdef):
+        raise RefactoringError(
+            "Cannot introduce a parameter from an assignment inside a conditional block"
+        )
+
     # Build the new parameter text: `name=default_value`
     if name != var_name:
         # The user can optionally rename the parameter
@@ -227,6 +235,20 @@ def introduce_field(inference_state, path, module_node, pos):
 
     file_to_node_changes = {path: node_changes}
     return Refactoring(inference_state, file_to_node_changes)
+
+
+def _is_in_control_flow_block(node, stop_node):
+    """
+    Return True if node is nested inside a control-flow block (if_stmt, for_stmt,
+    while_stmt, try_stmt, with_stmt) between node and stop_node (exclusive).
+    """
+    _CONTROL_FLOW = {'if_stmt', 'for_stmt', 'while_stmt', 'try_stmt', 'with_stmt'}
+    parent = node.parent
+    while parent is not None and parent is not stop_node:
+        if parent.type in _CONTROL_FLOW:
+            return True
+        parent = parent.parent
+    return False
 
 
 def _find_slash_after_last_param(params_node, last_param):
