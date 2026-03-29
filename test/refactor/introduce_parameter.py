@@ -48,6 +48,20 @@ def foo():
     return len(items)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot use a mutable literal as a parameter default
+# -------------------------------------------------- dict-default
+def foo():
+    #? 4 error
+    items = {'key': 'val'}
+    return items
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot use a mutable literal as a parameter default
+# -------------------------------------------------- empty-dict-default
+def foo():
+    #? 4 error
+    items = {}
+    return items
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot use a mutable literal as a parameter default
 # -------------------------------------------------- nested-function
 def outer():
     def inner():
