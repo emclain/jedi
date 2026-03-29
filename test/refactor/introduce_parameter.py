@@ -386,3 +386,12 @@ def f(value):
     return x + 1
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter: 'value' is already a parameter of this function
+# -------------------------------------------------- ternary-as-default
+def f(condition, a, b):
+    #? 4 text
+    x = a if condition else b
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def f(condition, a, b, x=a if condition else b):
+    #? 4 text
+    return x
