@@ -372,3 +372,17 @@ def f():
     return x
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter: 'x' is declared global in this function
+# -------------------------------------------------- clashes-with-existing-param
+def f(x):
+    #? 4 error
+    x = 42
+    return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter: 'x' is already a parameter of this function
+# -------------------------------------------------- rename-clashes-with-existing-param
+def f(value):
+    #? 4 error {'new_name': 'value'}
+    x = 42
+    return x + 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter: 'value' is already a parameter of this function

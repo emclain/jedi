@@ -104,11 +104,19 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
     else:
         param_name = var_name
 
+    # Check if a parameter with the same name already exists
+    parameters = funcdef.get_params()
+    existing_param_names = {p.name.value for p in parameters}
+    if param_name in existing_param_names:
+        raise RefactoringError(
+            "Cannot introduce a parameter: '%s' is already a parameter of this function"
+            % param_name
+        )
+
     new_param = param_name + '=' + default_value
 
     # Modify the function's parameter list
     node_changes = {}
-    parameters = funcdef.get_params()
     params_node = funcdef.children[2]  # The 'parameters' node
     if parameters:
         # Appending after **kwargs would produce a SyntaxError
