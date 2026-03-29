@@ -279,6 +279,16 @@ x = [x for x in range(10)]
  #? 0 {'new_name': 'y'}
 -x = [x for x in range(10)]
 +y = [x for x in range(10)]
+# -------------------------------------------------- comprehension-filter-clause
+#? 16 {'new_name': 'y'}
+result = [x for x in [1, 2, 3] if x < 3]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,3 +1,3 @@
+ #? 16 {'new_name': 'y'}
+-result = [x for x in [1, 2, 3] if x < 3]
++result = [y for y in [1, 2, 3] if y < 3]
 # -------------------------------------------------- comprehension-iterable-outer-var
 #? 0 {'new_name': 'data'}
 items = [1, 2, 3]

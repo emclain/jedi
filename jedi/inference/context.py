@@ -257,7 +257,14 @@ class TreeContextMixin:
                 return self.create_value(scope_node).as_context()
             elif scope_node.type in ('comp_for', 'sync_comp_for'):
                 parent_context = from_scope_node(parent_scope(scope_node.parent))
-                if node.start_pos >= scope_node.children[-1].start_pos:
+                # The iterable (after 'in', always children[3]) is evaluated
+                # in the enclosing scope.  The filter clause (comp_if), if
+                # present, belongs to the comprehension scope.  Using
+                # children[-1] was a bug: when comp_if is present it becomes
+                # the last child, so nodes inside it were wrongly assigned to
+                # parent_context.
+                iterable_node = scope_node.children[3]
+                if iterable_node.start_pos <= node.start_pos < iterable_node.end_pos:
                     return parent_context
                 return CompForContext(parent_context, scope_node)
             raise Exception("There's a scope that was not managed: %s" % scope_node)
