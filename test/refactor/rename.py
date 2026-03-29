@@ -1024,3 +1024,19 @@ result = deep_val
 -result = deep_val
 +from ..deep_mod import renamed_deep_val
 +result = renamed_deep_val
+# -------------------------------------------------- pep604-union-annotation
+#? 0 {'new_name': 'NewType'}
+MyType = int | str
+def f(x: MyType): ...
+use = MyType
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'NewType'}
+-MyType = int | str
+-def f(x: MyType): ...
+-use = MyType
++NewType = int | str
++def f(x: NewType): ...
++use = NewType
