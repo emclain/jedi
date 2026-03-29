@@ -414,3 +414,14 @@ def f():
     return value
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter: 'value' is already used as a local variable
+# -------------------------------------------------- variable-captured-by-nested-closure
+def outer():
+    #? 4 text
+    x = 5
+    def inner(): return x
+    return inner()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def outer(x=5):
+    #? 4 text
+    def inner(): return x
+    return inner()
