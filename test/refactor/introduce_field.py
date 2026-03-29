@@ -239,6 +239,14 @@ class MyClass:
         def inner():
             return self.x
         return inner()
+# -------------------------------------------------- annotated-declaration-no-value-error
+class MyClass:
+    def foo(self):
+        #? 8 error
+        x: int
+        return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a field from an annotation without a value
 # -------------------------------------------------- annotated-assignment
 class MyClass:
     def foo(self):
