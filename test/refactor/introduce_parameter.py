@@ -291,3 +291,20 @@ def foo():
 def foo(x=42):
     #? 4 text
     return x + 1
+# -------------------------------------------------- fstring-with-vars-error
+def foo():
+    val = 10
+    #? 4 error
+    msg = f'value is {val}'
+    return msg
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot use an f-string with variable references as a default value: it would be evaluated once at definition time, not on each call
+# -------------------------------------------------- fstring-no-vars-ok
+def foo():
+    #? 4 text
+    msg = f'hello world'
+    return msg
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def foo(msg=f'hello world'):
+    #? 4 text
+    return msg

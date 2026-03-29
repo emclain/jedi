@@ -54,6 +54,12 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             "it would be evaluated once at definition time, not on each call"
         )
 
+    if _is_fstring_with_vars(rhs):
+        raise RefactoringError(
+            "Cannot use an f-string with variable references as a default value: "
+            "it would be evaluated once at definition time, not on each call"
+        )
+
     # Reject mutable literal defaults (lists and dicts/sets) because they would
     # share the same object across all calls, unlike a fresh local variable.
     if rhs.type == 'atom' and rhs.children[0].value in ('[', '{'):
@@ -432,4 +438,14 @@ def _is_call_expr(node):
         for child in node.children:
             if child.type == 'trailer' and child.children[0].value == '(':
                 return True
+    return False
+
+
+def _is_fstring_with_vars(node):
+    """Return True if node is an f-string containing variable references."""
+    if node.type != 'fstring':
+        return False
+    for child in node.children:
+        if child.type == 'fstring_expr':
+            return True
     return False
