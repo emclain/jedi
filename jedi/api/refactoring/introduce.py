@@ -70,8 +70,14 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             "Cannot introduce a parameter: the variable is not inside a function"
         )
 
-    # Build the new parameter text: `name=default_value`
     var_name = leaf.value
+    if _has_nonlocal_declaration(funcdef, var_name):
+        raise RefactoringError(
+            "Cannot introduce a parameter: '%s' is declared nonlocal in this function"
+            % var_name
+        )
+
+    # Build the new parameter text: `name=default_value`
     if name != var_name:
         # The user can optionally rename the parameter
         param_name = name
@@ -433,3 +439,34 @@ def _is_call_expr(node):
             if child.type == 'trailer' and child.children[0].value == '(':
                 return True
     return False
+
+
+def _has_nonlocal_declaration(funcdef, var_name):
+    """
+    Return True if funcdef's direct body contains a 'nonlocal <var_name>'
+    statement (without descending into nested functions).
+    """
+    suite = _get_funcdef_suite(funcdef)
+    if suite is None:
+        return False
+    return _suite_has_nonlocal(suite, var_name)
+
+
+def _suite_has_nonlocal(node, var_name):
+    """Recursively search node for nonlocal_stmt naming var_name, not crossing function boundaries."""
+    try:
+        children = node.children
+    except AttributeError:
+        return False
+
+    if node.type in ('funcdef', 'async_funcdef'):
+        return False
+
+    if node.type == 'nonlocal_stmt':
+        # nonlocal_stmt children: ['nonlocal', name, ...] with commas between names
+        for child in node.children:
+            if child.type == 'name' and child.value == var_name:
+                return True
+        return False
+
+    return any(_suite_has_nonlocal(child, var_name) for child in children)

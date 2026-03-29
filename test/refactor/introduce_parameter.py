@@ -291,3 +291,13 @@ def foo():
 def foo(x=42):
     #? 4 text
     return x + 1
+# -------------------------------------------------- nonlocal-variable-error
+def outer():
+    x = 0
+    def inner():
+        nonlocal x
+        #? 8 error
+        x = 5
+    return inner
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter: 'x' is declared nonlocal in this function
