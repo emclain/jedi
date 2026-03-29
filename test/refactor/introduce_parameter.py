@@ -395,3 +395,14 @@ def f(condition, a, b):
 def f(condition, a, b, x=a if condition else b):
     #? 4 text
     return x
+# -------------------------------------------------- generator-function-yield
+def gen():
+    #? 4 text
+    x = 5
+    yield x
+    yield x * 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+def gen(x=5):
+    #? 4 text
+    yield x
+    yield x * 2
