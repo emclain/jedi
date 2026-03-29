@@ -113,6 +113,14 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             % param_name
         )
 
+    # Check if param_name clashes with an existing local variable in the body
+    if param_name != var_name:
+        if _has_local_variable(funcdef, param_name, exclude_stmt=expr_stmt):
+            raise RefactoringError(
+                "Cannot introduce a parameter: '%s' is already used as a local variable"
+                % param_name
+            )
+
     new_param = param_name + '=' + default_value
 
     # Modify the function's parameter list
@@ -472,6 +480,37 @@ def _rename_references(node, old_name, new_name, node_changes):
             node_changes[leaf] = leaf.prefix + new_name
 
     _walk_name_references(node, old_name, _apply)
+
+
+def _has_local_variable(funcdef, name, exclude_stmt=None):
+    """
+    Return True if *name* is assigned as a local variable anywhere in funcdef's
+    direct body, excluding *exclude_stmt* (the statement being promoted).
+    Does not descend into nested functions.
+    """
+    suite = _get_funcdef_suite(funcdef)
+    if suite is None:
+        return False
+    return _suite_has_local_assignment(suite, name, exclude_stmt)
+
+
+def _suite_has_local_assignment(node, name, exclude_stmt):
+    """Recursively search for assignments to *name*, not crossing function boundaries."""
+    try:
+        children = node.children
+    except AttributeError:
+        return False
+
+    if node.type in ('funcdef', 'async_funcdef'):
+        return False
+
+    if node.type == 'expr_stmt' and node is not exclude_stmt:
+        defined = node.get_defined_names(include_setitem=True)
+        for n in defined:
+            if n.value == name:
+                return True
+
+    return any(_suite_has_local_assignment(child, name, exclude_stmt) for child in children)
 
 
 def _is_call_expr(node):

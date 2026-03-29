@@ -406,3 +406,11 @@ def gen(x=5):
     #? 4 text
     yield x
     yield x * 2
+# -------------------------------------------------- rename-clashes-with-existing-local
+def f():
+    #? 4 error {'new_name': 'value'}
+    x = 42
+    value = x + 1
+    return value
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter: 'value' is already used as a local variable
