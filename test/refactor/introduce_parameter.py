@@ -363,3 +363,12 @@ def foo():
 def foo(msg=f'hello world'):
     #? 4 text
     return msg
+# -------------------------------------------------- global-variable-error
+x = 0
+def f():
+    global x
+    #? 4 error
+    x = 5
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter: 'x' is declared global in this function

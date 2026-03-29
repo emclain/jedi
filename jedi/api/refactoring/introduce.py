@@ -83,6 +83,12 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             % var_name
         )
 
+    if _has_global_declaration(funcdef, var_name):
+        raise RefactoringError(
+            "Cannot introduce a parameter: '%s' is declared global in this function"
+            % var_name
+        )
+
     # Reject assignments nested inside control-flow blocks (if/for/while/try/with).
     # Removing only one branch assignment while leaving sibling assignments would
     # silently override the new parameter at runtime.
@@ -509,3 +515,34 @@ def _suite_has_nonlocal(node, var_name):
         return False
 
     return any(_suite_has_nonlocal(child, var_name) for child in children)
+
+
+def _has_global_declaration(funcdef, var_name):
+    """
+    Return True if funcdef's direct body contains a 'global <var_name>'
+    statement (without descending into nested functions).
+    """
+    suite = _get_funcdef_suite(funcdef)
+    if suite is None:
+        return False
+    return _suite_has_global(suite, var_name)
+
+
+def _suite_has_global(node, var_name):
+    """Recursively search node for global_stmt naming var_name, not crossing function boundaries."""
+    try:
+        children = node.children
+    except AttributeError:
+        return False
+
+    if node.type in ('funcdef', 'async_funcdef'):
+        return False
+
+    if node.type == 'global_stmt':
+        # global_stmt children: ['global', name, ...] with commas between names
+        for child in node.children:
+            if child.type == 'name' and child.value == var_name:
+                return True
+        return False
+
+    return any(_suite_has_global(child, var_name) for child in children)
