@@ -309,6 +309,16 @@ class MyClass:
         except ValueError:
             self.x = -1
         return self.x
+# -------------------------------------------------- init-simple
+class MyClass:
+    def __init__(self):
+        #? 8 text
+        x = 42
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+class MyClass:
+    def __init__(self):
+        #? 8 text
+        self.x = 42
 # -------------------------------------------------- in-init-method
 class MyClass:
     def __init__(self):
