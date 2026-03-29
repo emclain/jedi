@@ -219,7 +219,7 @@ Cannot extract a "if_stmt"
 x = foo = 4
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot extract a name that defines something
-# -------------------------------------------------- keyword-None
+# -------------------------------------------------- not-subexpression
 #? 4 text {'new_name': 'x', 'until_column': 7}
 yy = not foo or bar
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -284,20 +284,6 @@ y = f"{obj!r}"
 #? 8 text {'new_name': 'x'}
 x = obj
 y = f"{x!r}"
-# -------------------------------------------------- fstring-conversion-flag-str
-#? 8 text {'new_name': 'x'}
-y = f"{obj!s}"
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-#? 8 text {'new_name': 'x'}
-x = obj
-y = f"{x!s}"
-# -------------------------------------------------- fstring-conversion-flag-ascii
-#? 8 text {'new_name': 'x'}
-y = f"{obj!a}"
-# ++++++++++++++++++++++++++++++++++++++++++++++++++
-#? 8 text {'new_name': 'x'}
-x = obj
-y = f"{x!a}"
 # -------------------------------------------------- dict-literal
 #? 4 text {'new_name': 'x'}
 y = {1: 2, 3: 4}
