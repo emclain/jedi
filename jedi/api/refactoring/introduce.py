@@ -97,6 +97,12 @@ def introduce_parameter(inference_state, path, module_node, name, pos):
             "Cannot introduce a parameter from an assignment inside a conditional block"
         )
 
+    if _has_use_before_definition(funcdef, var_name, expr_stmt):
+        raise RefactoringError(
+            "Cannot introduce a parameter: '%s' is used before its definition in this function"
+            % var_name
+        )
+
     # Build the new parameter text: `name=default_value`
     if name != var_name:
         # The user can optionally rename the parameter
@@ -531,6 +537,27 @@ def _is_fstring_with_vars(node):
         if child.type == 'fstring_expr':
             return True
     return False
+
+
+def _has_use_before_definition(funcdef, var_name, definition_stmt):
+    """
+    Return True if var_name has any use (read) reference that appears earlier
+    in the function body than definition_stmt.  Descends into the direct body
+    only (does not cross nested function/class boundaries).
+    """
+    def_start = definition_stmt.start_pos
+    suite = _get_funcdef_suite(funcdef)
+    if suite is None:
+        return False
+
+    found = [False]
+
+    def _check(leaf):
+        if leaf.start_pos < def_start and not leaf.is_definition():
+            found[0] = True
+
+    _walk_name_references(suite, var_name, _check)
+    return found[0]
 
 
 def _has_nonlocal_declaration(funcdef, var_name):

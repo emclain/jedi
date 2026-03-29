@@ -428,6 +428,13 @@ def f():
     return value
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot introduce a parameter: 'value' is already used as a local variable
+# -------------------------------------------------- use-before-definition-error
+def f():
+    print(x)
+    #? 4 error
+    x = 5
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot introduce a parameter: 'x' is used before its definition in this function
 # -------------------------------------------------- variable-captured-by-nested-closure
 def outer():
     #? 4 text
