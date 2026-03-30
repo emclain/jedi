@@ -1,4 +1,5 @@
 import difflib
+import re
 from pathlib import Path
 from typing import Dict, Iterable, Tuple
 
@@ -164,6 +165,31 @@ def _calculate_rename(path, new_name):
     return path, dir_.joinpath(new_name + path.suffix)
 
 
+def _iter_string_annotations(module_node):
+    """Yield String leaf nodes that appear in annotation positions."""
+    for node in _walk_tree(module_node):
+        if node.type == 'funcdef':
+            ann = node.annotation
+            if ann is not None and ann.type == 'string':
+                yield ann
+            for param in node.get_params():
+                if param.annotation is not None and param.annotation.type == 'string':
+                    yield param.annotation
+        elif node.type == 'expr_stmt' and len(node.children) >= 2:
+            annassign = node.children[1]
+            if getattr(annassign, 'type', None) == 'annassign':
+                ann = annassign.children[1]
+                if ann.type == 'string':
+                    yield ann
+
+
+def _walk_tree(node):
+    yield node
+    if hasattr(node, 'children'):
+        for child in node.children:
+            yield from _walk_tree(child)
+
+
 def rename(inference_state, definitions, new_name):
     file_renames = set()
     file_tree_name_map = {}
@@ -171,10 +197,13 @@ def rename(inference_state, definitions, new_name):
     if not definitions:
         raise RefactoringError("There is no name under the cursor")
 
+    old_name = None
     for d in definitions:
         # This private access is ok in a way. It's not public to
         # protect Jedi users from seeing it.
         tree_name = d._name.tree_name
+        if old_name is None and tree_name is not None:
+            old_name = tree_name.value
         if d.type == 'module' and tree_name is None and d.module_path is not None:
             p = Path(d.module_path)
             file_renames.add(_calculate_rename(p, new_name))
@@ -185,6 +214,16 @@ def rename(inference_state, definitions, new_name):
             if tree_name is not None:
                 fmap = file_tree_name_map.setdefault(d.module_path, {})
                 fmap[tree_name] = tree_name.prefix + new_name
+
+    if old_name is not None:
+        pattern = re.compile(r'\b' + re.escape(old_name) + r'\b')
+        for fmap in file_tree_name_map.values():
+            module_node = next(iter(fmap)).get_root_node()
+            for string_node in _iter_string_annotations(module_node):
+                new_val = pattern.sub(new_name, string_node.value)
+                if new_val != string_node.value:
+                    fmap[string_node] = string_node.prefix + new_val
+
     return Refactoring(inference_state, file_tree_name_map, file_renames)
 
 

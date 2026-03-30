@@ -1050,3 +1050,48 @@ use = MyType
 +NewType = int | str
 +def f(x: NewType): ...
 +use = NewType
+# -------------------------------------------------- string-annotation-return
+#? 0 {'new_name': 'post'}
+pre = 1
+def parse_args() -> 'pre':
+    return pre
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'post'}
+-pre = 1
+-def parse_args() -> 'pre':
+-    return pre
++post = 1
++def parse_args() -> 'post':
++    return post
+# -------------------------------------------------- string-annotation-param
+#? 0 {'new_name': 'post'}
+pre = 1
+def f(x: 'pre') -> None:
+    return pre
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,5 +1,5 @@
+ #? 0 {'new_name': 'post'}
+-pre = 1
+-def f(x: 'pre') -> None:
+-    return pre
++post = 1
++def f(x: 'post') -> None:
++    return post
+# -------------------------------------------------- string-annotation-variable
+#? 0 {'new_name': 'post'}
+pre = 1
+x: 'pre' = pre
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,4 +1,4 @@
+ #? 0 {'new_name': 'post'}
+-pre = 1
+-x: 'pre' = pre
++post = 1
++x: 'post' = post
