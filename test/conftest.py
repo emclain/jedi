@@ -37,6 +37,12 @@ def pytest_addoption(parser):
     parser.addoption(
         "--thirdparty", action='store_true',
         help="Include integration tests that requires third party modules.")
+    parser.addoption(
+        '--lsp-cmd', default=None,
+        help='Command to launch the LSP server (e.g. "zuban --stdio")')
+    parser.addoption(
+        '--zuban-bin', default=None,
+        help='Path to pre-built zuban binary (skips cargo build)')
 
 
 def parse_test_files_option(opt):
