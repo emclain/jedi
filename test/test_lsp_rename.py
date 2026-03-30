@@ -2,12 +2,10 @@
 Test harness that runs jedi's rename fixture tests against an LSP server.
 
 Usage:
-    python3 -m pytest test/test_lsp_rename.py --lsp-cmd='zuban server' -v
+    python3 -m pytest test/test_lsp_rename.py --lsp-cmd='zuban --stdio' -v
 """
 import asyncio
 import os
-import subprocess
-import sys
 
 import pytest
 
@@ -18,38 +16,12 @@ from test.helpers import test_dir
 RENAME_FIXTURE = os.path.join(test_dir, 'refactor', 'rename.py')
 
 
-def _build_zuban():
-    """Build zuban and return path to binary."""
-    zuban_dir = os.path.join(os.path.dirname(test_dir), 'zuban')
-    if not os.path.isdir(zuban_dir):
-        zuban_dir = os.path.join(os.path.dirname(os.path.dirname(test_dir)), 'zuban')
-    if not os.path.isdir(zuban_dir):
-        return None
-    result = subprocess.run(
-        ['cargo', 'build'],
-        cwd=zuban_dir,
-        capture_output=True, text=True,
-    )
-    if result.returncode != 0:
-        pytest.skip(f'cargo build failed: {result.stderr}')
-    binary = os.path.join(zuban_dir, 'target', 'debug', 'zuban')
-    if not os.path.isfile(binary):
-        pytest.skip(f'zuban binary not found at {binary}')
-    return binary
-
-
 @pytest.fixture(scope='session')
 def lsp_cmd(request):
     cmd = request.config.getoption('--lsp-cmd', default=None)
-    if cmd:
-        return cmd
-    zuban_bin = request.config.getoption('--zuban-bin', default=None)
-    if zuban_bin:
-        return f'{zuban_bin} --stdio'
-    binary = _build_zuban()
-    if binary:
-        return f'{binary} --stdio'
-    pytest.skip('No --lsp-cmd or --zuban-bin provided and cargo build not available')
+    if not cmd:
+        pytest.skip('--lsp-cmd not provided')
+    return cmd
 
 
 class LspSessionManager:
