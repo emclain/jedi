@@ -33,13 +33,7 @@ git commit -m "<message>"
 
 ### 3. Landing the Plane (in the worktree)
 
-File any follow-up issues first:
-
-```bash
-bd create --title="..." --type=task --priority=<n>
-```
-
-Then land:
+Land:
 
 ```bash
 bash scripts/agent-land.sh
@@ -49,10 +43,21 @@ The script runs quality gates, closes the issue, persists beads state, pushes (w
 
 ### 4. **MANDATORY: Reflect on Workflow**
 
-- **If workflow was smooth:** write one sentence saying so.
-- **If `agent-start.sh` or `agent-land.sh` failed or was incomplete:** improve it.
+Before stopping, review the session for friction, gaps, or follow-up work. This step is **not optional** — do not skip it.
+
+**For every issue you encountered or discovered (permission errors, missing steps, unclear instructions, new edge cases):**
+
+Fix in-place (only when the fix is clear and unambiguous):
+- **If `scripts/agent-start.sh` or `agent-land.sh` failed or was incomplete:** improve the script.
 - **If setup instructions in AGENTS.md were wrong or missing a step:** update them.
+- **If a new category of obstacle appeared:** add it to the script's guard logic.
 - **If any step is currently prose instructions:** convert it to scripted commands.
+
+File a bead for anything requiring deeper investigation or design:
+1. **File a bead** — `bd create --title="..." --description="..." --type=task --priority=<n>`
+2. **Push any new beads** — run `bd export > .beads/issues.jsonl`, commit, and push to `refactoring-test-coverage`.
+
+**If workflow was smooth with no issues:** write one sentence saying so — no bead needed.
 
 The goal: the next agent should be able to run `bash scripts/agent-start.sh`, do their work, and run `bash scripts/agent-land.sh` with no manual intervention.
 
