@@ -106,6 +106,8 @@ def get_tmpdir():
     global _tmpdir
     if _tmpdir is None:
         _tmpdir = tempfile.mkdtemp(prefix='lsp_compat_')
+        with open(os.path.join(_tmpdir, 'pyproject.toml'), 'w') as f:
+            f.write('[tool.zuban]\n')
     return _tmpdir
 
 
