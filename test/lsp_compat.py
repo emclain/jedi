@@ -6,8 +6,9 @@ import asyncio
 import difflib
 import json
 import os
-import tempfile
 import shlex
+import shutil
+import tempfile
 from pathlib import Path
 
 from test.refactor import _collect_file_tests, RefactoringCase
@@ -15,6 +16,8 @@ from test.refactor import _collect_file_tests, RefactoringCase
 
 def collect_rename_cases(fixture_path):
     """Parse a jedi fixture file and yield RefactoringCase objects for rename tests."""
+    fixture_dir = os.path.dirname(os.path.abspath(fixture_path))
+    get_tmpdir(fixture_dir=fixture_dir)
     with open(fixture_path, newline='') as f:
         code = f.read()
     yield from _collect_file_tests(code, fixture_path, lines_to_execute=[])
@@ -100,15 +103,38 @@ class LspClient:
 
 # Shared temp directory for all cases in a session
 _tmpdir = None
+_fixture_dir = None
 
 
-def get_tmpdir():
-    global _tmpdir
+def get_tmpdir(fixture_dir=None):
+    global _tmpdir, _fixture_dir
     if _tmpdir is None:
         _tmpdir = tempfile.mkdtemp(prefix='lsp_compat_')
         with open(os.path.join(_tmpdir, 'pyproject.toml'), 'w') as f:
             f.write('[tool.zuban]\n')
+    if fixture_dir is not None and fixture_dir != _fixture_dir:
+        _fixture_dir = fixture_dir
+        _copy_fixture_aux_files(fixture_dir, _tmpdir)
     return _tmpdir
+
+
+def _copy_fixture_aux_files(fixture_dir, tmpdir):
+    """Copy auxiliary files from the fixture directory into the temp workspace.
+
+    This makes cross-file rename cases work: e.g. cases that reference
+    import_tree/ need those files present so the LSP server can resolve imports.
+    rename.py is excluded because the adapter manages that file itself.
+    """
+    for entry in os.scandir(fixture_dir):
+        if entry.name == 'rename.py':
+            continue
+        dst = os.path.join(tmpdir, entry.name)
+        if entry.is_dir():
+            if os.path.exists(dst):
+                shutil.rmtree(dst)
+            shutil.copytree(entry.path, dst)
+        else:
+            shutil.copy2(entry.path, dst)
 
 
 async def start_server(cmd):
