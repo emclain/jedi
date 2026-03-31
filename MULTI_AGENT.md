@@ -33,7 +33,13 @@ git commit -m "<message>"
 
 ### 3. Landing the Plane (in the worktree)
 
-Land:
+File any follow-up issues for work you discovered but didn't complete:
+
+```bash
+bd create --title="..." --type=task --priority=<n>
+```
+
+Then land:
 
 ```bash
 bash scripts/agent-land.sh
