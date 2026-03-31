@@ -197,6 +197,23 @@ def rename(inference_state, definitions, new_name):
     if not definitions:
         raise RefactoringError("There is no name under the cursor")
 
+    project_path = inference_state.project.path
+    internal_def_paths = set()
+    external_def_paths = set()
+    for d in definitions:
+        if d.is_definition() and d.module_path is not None \
+                and not isinstance(d._name, ImplicitNSName) \
+                and d.type != 'module':
+            try:
+                Path(d.module_path).relative_to(project_path)
+                internal_def_paths.add(d.module_path)
+            except ValueError:
+                external_def_paths.add(d.module_path)
+    if internal_def_paths and external_def_paths:
+        raise RefactoringError(
+            "Cannot rename: symbol is defined in an external package"
+        )
+
     old_name = None
     for d in definitions:
         # This private access is ok in a way. It's not public to

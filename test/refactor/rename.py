@@ -1095,3 +1095,9 @@ x: 'pre' = pre
 -x: 'pre' = pre
 +post = 1
 +x: 'post' = post
+# -------------------------------------------------- external-symbol
+#? 20 error {'new_name': 'myjoin'}
+from os.path import join
+join('a', 'b')
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+Cannot rename: symbol is defined in an external package
