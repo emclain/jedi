@@ -6,6 +6,8 @@ Multiple Claude instances can work in parallel from the same checkout without co
 
 Each agent instance should claim and complete **exactly one issue**, then stop.
 
+Work only what the issue describes. If you notice related problems, edge cases, or tempting tangents, file a bead and move on — do not investigate or fix them. Staying narrowly focused keeps sessions short and avoids conflicts with other instances.
+
 ## Procedure
 
 ### 1. Startup
@@ -33,7 +35,7 @@ git commit -m "<message>"
 
 ### 3. Landing the Plane (in the worktree)
 
-File any follow-up issues for work you discovered but didn't complete:
+File beads for anything you noticed but didn't work on — related issues, edge cases, tangents. Do not pursue them.
 
 ```bash
 bd create --title="..." --type=task --priority=<n>
