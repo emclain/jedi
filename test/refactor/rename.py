@@ -830,7 +830,7 @@ print(x)
 -print(x)
 +y: int
 +print(y)
-# -------------------------------------------------- dunder-all-not-updated
+# -------------------------------------------------- dunder-all-updated
 __all__ = ['foo', 'bar']
 #? 4 {'new_name': 'baz'}
 def foo():
@@ -841,7 +841,8 @@ def bar():
 --- rename.py
 +++ rename.py
 @@ -1,6 +1,6 @@
- __all__ = ['foo', 'bar']
+-__all__ = ['foo', 'bar']
++__all__ = ['baz', 'bar']
  #? 4 {'new_name': 'baz'}
 -def foo():
 +def baz():

@@ -183,6 +183,37 @@ def _iter_string_annotations(module_node):
                     yield ann
 
 
+def _iter_dunder_all_strings(module_node):
+    """Yield String leaf nodes that appear as elements in a module-level
+    ``__all__ = [...]`` (or ``__all__ = (...)``) assignment."""
+    for stmt in module_node.children:
+        if stmt.type == 'simple_stmt':
+            for child in stmt.children:
+                if child.type == 'expr_stmt':
+                    yield from _iter_dunder_all_string_elements(child)
+        elif stmt.type == 'expr_stmt':
+            yield from _iter_dunder_all_string_elements(stmt)
+
+
+def _iter_dunder_all_string_elements(expr_stmt):
+    """Yield String nodes inside a ``__all__ = [...]`` expr_stmt."""
+    children = expr_stmt.children
+    if (len(children) < 3
+            or getattr(children[0], 'value', None) != '__all__'
+            or getattr(children[1], 'value', None) != '='):
+        return
+    rhs = children[2]
+    if not hasattr(rhs, 'children'):
+        return
+    for item in rhs.children:
+        if getattr(item, 'type', None) == 'string':
+            yield item
+        elif getattr(item, 'type', None) == 'testlist_comp':
+            for element in item.children:
+                if getattr(element, 'type', None) == 'string':
+                    yield element
+
+
 def _walk_tree(node):
     yield node
     if hasattr(node, 'children'):
@@ -237,6 +268,10 @@ def rename(inference_state, definitions, new_name):
         for fmap in file_tree_name_map.values():
             module_node = next(iter(fmap)).get_root_node()
             for string_node in _iter_string_annotations(module_node):
+                new_val = pattern.sub(new_name, string_node.value)
+                if new_val != string_node.value:
+                    fmap[string_node] = string_node.prefix + new_val
+            for string_node in _iter_dunder_all_strings(module_node):
                 new_val = pattern.sub(new_name, string_node.value)
                 if new_val != string_node.value:
                     fmap[string_node] = string_node.prefix + new_val

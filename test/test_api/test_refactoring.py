@@ -134,3 +134,58 @@ def test_diff_path_outside_of_project(Script):
         -foo = 1
         +bar = 1
         ''')
+
+
+def test_rename_updates_dunder_all_same_file(Script, tmpdir):
+    """Scenario A: __all__ string in the same file as the renamed symbol is updated."""
+    code = dedent('''\
+        def helper(): pass
+        __all__ = ['helper']
+        ''')
+    path = Path(tmpdir.strpath) / 'utils.py'
+    path.write_text(code, encoding='utf-8')
+    script = Script(code, path=path, project=jedi.Project(tmpdir.strpath))
+    refactoring = script.rename(line=1, column=4, new_name='process')
+    new_code = list(refactoring.get_changed_files().values())[0].get_new_code()
+    assert 'def process(): pass' in new_code
+    assert "'process'" in new_code
+    assert "'helper'" not in new_code
+
+
+def test_rename_updates_dunder_all_cross_file(Script, tmpdir):
+    """Scenario B: __all__ string in a re-exporting file is updated alongside the import."""
+    utils_code = 'def helper(): pass\n'
+    api_code = dedent('''\
+        from utils import helper
+        __all__ = ['helper']
+        ''')
+    utils_path = Path(tmpdir.strpath) / 'utils.py'
+    api_path = Path(tmpdir.strpath) / 'api.py'
+    utils_path.write_text(utils_code, encoding='utf-8')
+    api_path.write_text(api_code, encoding='utf-8')
+
+    script = Script(utils_code, path=utils_path, project=jedi.Project(tmpdir.strpath))
+    refactoring = script.rename(line=1, column=4, new_name='process')
+    changed = {p: f.get_new_code() for p, f in refactoring.get_changed_files().items()}
+
+    api_new = changed[api_path]
+    assert 'from utils import process' in api_new
+    assert "'process'" in api_new
+    assert "'helper'" not in api_new
+
+
+def test_rename_dunder_all_multi_element(Script, tmpdir):
+    """__all__ with multiple entries: only the matching string is updated."""
+    code = dedent('''\
+        def helper(): pass
+        def other(): pass
+        __all__ = ['helper', 'other']
+        ''')
+    path = Path(tmpdir.strpath) / 'mod.py'
+    path.write_text(code, encoding='utf-8')
+    script = Script(code, path=path, project=jedi.Project(tmpdir.strpath))
+    refactoring = script.rename(line=1, column=4, new_name='process')
+    new_code = list(refactoring.get_changed_files().values())[0].get_new_code()
+    assert "'process'" in new_code
+    assert "'other'" in new_code
+    assert "'helper'" not in new_code
