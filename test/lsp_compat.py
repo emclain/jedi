@@ -224,8 +224,8 @@ async def run_rename(client, case: RefactoringCase):
     if result is None:
         return case.type, None
 
-    # Extract edits from the response (handle both formats)
-    edits_for_uri = []
+    # Collect edits per URI from the response (handle both formats)
+    edits_by_uri = {}
     document_changes = result.get('documentChanges', [])
     changes = result.get('changes', {})
 
@@ -233,27 +233,61 @@ async def run_rename(client, case: RefactoringCase):
         for change in document_changes:
             if 'textDocument' in change and 'edits' in change:
                 change_uri = change['textDocument'].get('uri', '')
-                if change_uri == uri:
-                    edits_for_uri.extend(change['edits'])
+                edits_by_uri.setdefault(change_uri, []).extend(change['edits'])
     elif changes:
-        edits_for_uri = changes.get(uri, [])
+        edits_by_uri = dict(changes)
 
-    if not edits_for_uri:
-        # No edits for our file
+    if not edits_by_uri:
         if case.type == 'error':
             return 'error', None
         return case.type, None
 
-    new_text = apply_edits(code, edits_for_uri)
-
     if case.type == 'diff':
-        diff = make_diff(code, new_text, 'rename.py')
-        return 'diff', diff
-    elif case.type == 'text':
-        return 'text', new_text
-    elif case.type == 'error':
-        return 'error', new_text
-    return case.type, new_text
+        # Produce per-file diffs: definition files first, rename.py last
+        tmpdir = get_tmpdir()
+        uri_prefix = 'file://' + tmpdir + '/'
+
+        def uri_sort_key(u):
+            return (1 if u == uri else 0, u)
+
+        diff_parts = []
+        for file_uri in sorted(edits_by_uri.keys(), key=uri_sort_key):
+            file_edits = edits_by_uri[file_uri]
+            if file_uri.startswith(uri_prefix):
+                rel_path = file_uri[len(uri_prefix):]
+            elif file_uri == 'file://' + tmpdir:
+                rel_path = ''
+            else:
+                rel_path = file_uri
+
+            abs_path = os.path.join(tmpdir, rel_path)
+            try:
+                with open(abs_path, 'r') as f:
+                    orig_text = f.read()
+            except (IOError, OSError):
+                orig_text = ''
+
+            new_text = apply_edits(orig_text, file_edits)
+            diff = make_diff(orig_text, new_text, rel_path)
+            if diff:
+                diff_parts.append(diff)
+
+        if not diff_parts:
+            return case.type, None
+        return 'diff', ''.join(diff_parts)
+    else:
+        # For text/error types, use only the rename.py edits
+        edits_for_uri = edits_by_uri.get(uri, [])
+        if not edits_for_uri:
+            if case.type == 'error':
+                return 'error', None
+            return case.type, None
+        new_text = apply_edits(code, edits_for_uri)
+        if case.type == 'text':
+            return 'text', new_text
+        elif case.type == 'error':
+            return 'error', new_text
+        return case.type, new_text
 
 
 def apply_edits(text, edits):
