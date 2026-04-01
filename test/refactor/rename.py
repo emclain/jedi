@@ -1102,3 +1102,39 @@ from os.path import join
 join('a', 'b')
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 Cannot rename: symbol is defined in an external package
+# -------------------------------------------------- dunder-slots-classvar-updated
+class Foo:
+    __slots__ = ('x', 'y')
+#? 4 {'new_name': 'z'}
+    x = 1
+    y = 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,6 +1,6 @@
+ class Foo:
+-    __slots__ = ('x', 'y')
++    __slots__ = ('z', 'y')
+ #? 4 {'new_name': 'z'}
+-    x = 1
++    z = 1
+     y = 2
+# -------------------------------------------------- dunder-slots-instance-attr-updated
+class Foo:
+    __slots__ = ['x', 'y']
+    def __init__(self):
+#? 13 {'new_name': 'z'}
+        self.x = 1
+        self.y = 2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,7 +1,7 @@
+ class Foo:
+-    __slots__ = ['x', 'y']
++    __slots__ = ['z', 'y']
+     def __init__(self):
+ #? 13 {'new_name': 'z'}
+-        self.x = 1
++        self.z = 1
+         self.y = 2
