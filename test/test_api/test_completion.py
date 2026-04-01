@@ -87,16 +87,14 @@ def test_loading_unicode_files_with_bad_global_charset(Script, monkeypatch, tmpd
     s.complete(line=2, column=4)
 
 
-def test_complete_expanduser(Script):
-    possibilities = os.scandir(expanduser('~'))
-    non_dots = [p for p in possibilities if not p.name.startswith('.') and len(p.name) > 1]
-    item = non_dots[0]
-    line = "'~%s%s'" % (os.sep, item.name)
+def test_complete_expanduser(Script, tmp_path, monkeypatch):
+    subdir = tmp_path / "testdir"
+    subdir.mkdir()
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    line = "'~%s%s'" % (os.sep, subdir.name)
     s = Script(line)
-    expected_name = item.name
-    if item.is_dir():
-        expected_name += os.path.sep
-    assert expected_name in [c.name for c in s.complete(column=len(line)-1)]
+    assert subdir.name + os.path.sep in [c.name for c in s.complete(column=len(line)-1)]
 
 
 def test_fake_subnodes(Script):
