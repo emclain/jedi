@@ -90,12 +90,9 @@ bd list
 ## Setup
 
 ```bash
-# Create and activate the virtual environment (uses uv — pip is not available)
-uv venv .venv
+# Create the virtual environment and install all dependencies (uses uv)
+uv sync
 source .venv/bin/activate
-
-# Install jedi in development mode (with test dependencies)
-uv pip install -e '.[testing]'
 
 # Run the refactoring tests
 python3 -m pytest -v -k "refactor"
