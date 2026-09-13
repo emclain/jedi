@@ -152,7 +152,16 @@ async def start_server(cmd):
 
     resp = await client.request('initialize', {
         'processId': os.getpid(),
-        'capabilities': {},
+        # Servers refuse renames that need a file rename (e.g. renaming a
+        # module) unless the client declares resource operation support.
+        'capabilities': {
+            'workspace': {
+                'workspaceEdit': {
+                    'documentChanges': True,
+                    'resourceOperations': ['create', 'rename', 'delete'],
+                },
+            },
+        },
         'rootUri': 'file://' + tmpdir,
         'workspaceFolders': [{'uri': 'file://' + tmpdir, 'name': 'test'}],
     })
@@ -224,8 +233,10 @@ async def run_rename(client, case: RefactoringCase):
     if result is None:
         return case.type, None
 
-    # Collect edits per URI from the response (handle both formats)
+    # Collect edits per URI from the response (handle both formats), plus
+    # any file renames (resource operations in documentChanges)
     edits_by_uri = {}
+    renames = []
     document_changes = result.get('documentChanges', [])
     changes = result.get('changes', {})
 
@@ -234,10 +245,12 @@ async def run_rename(client, case: RefactoringCase):
             if 'textDocument' in change and 'edits' in change:
                 change_uri = change['textDocument'].get('uri', '')
                 edits_by_uri.setdefault(change_uri, []).extend(change['edits'])
+            elif change.get('kind') == 'rename':
+                renames.append((change['oldUri'], change['newUri']))
     elif changes:
         edits_by_uri = dict(changes)
 
-    if not edits_by_uri:
+    if not edits_by_uri and not renames:
         if case.type == 'error':
             return 'error', None
         return case.type, None
@@ -250,15 +263,24 @@ async def run_rename(client, case: RefactoringCase):
         def uri_sort_key(u):
             return (1 if u == uri else 0, u)
 
-        diff_parts = []
+        def uri_to_rel_path(file_uri):
+            if file_uri.startswith(uri_prefix):
+                return file_uri[len(uri_prefix):]
+            elif file_uri == 'file://' + tmpdir:
+                return ''
+            return file_uri
+
+        # Like jedi's Refactoring.get_diff, file renames come first, sorted
+        diff_parts = [
+            'rename from %s\nrename to %s\n' % (old, new)
+            for old, new in sorted(
+                (uri_to_rel_path(old), uri_to_rel_path(new))
+                for old, new in renames
+            )
+        ]
         for file_uri in sorted(edits_by_uri.keys(), key=uri_sort_key):
             file_edits = edits_by_uri[file_uri]
-            if file_uri.startswith(uri_prefix):
-                rel_path = file_uri[len(uri_prefix):]
-            elif file_uri == 'file://' + tmpdir:
-                rel_path = ''
-            else:
-                rel_path = file_uri
+            rel_path = uri_to_rel_path(file_uri)
 
             abs_path = os.path.join(tmpdir, rel_path)
             try:
