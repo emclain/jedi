@@ -614,26 +614,30 @@ fb
 -fb
 +alias
 # -------------------------------------------------- nonlocal-rename
-x = 10
-def inner():
-    nonlocal x
-    #? 4 {'new_name': 'y'}
-    x = 20
-    return x
+def outer():
+    x = 10
+    def inner():
+        nonlocal x
+        #? 8 {'new_name': 'y'}
+        x = 20
+        return x
+    return inner()
 # ++++++++++++++++++++++++++++++++++++++++++++++++++
 --- rename.py
 +++ rename.py
-@@ -1,7 +1,7 @@
--x = 10
-+y = 10
- def inner():
--    nonlocal x
-+    nonlocal y
-     #? 4 {'new_name': 'y'}
--    x = 20
--    return x
-+    y = 20
-+    return y
+@@ -1,9 +1,9 @@
+ def outer():
+-    x = 10
++    y = 10
+     def inner():
+-        nonlocal x
++        nonlocal y
+         #? 8 {'new_name': 'y'}
+-        x = 20
+-        return x
++        y = 20
++        return y
+     return inner()
 # -------------------------------------------------- shadow-builtin
 def shadow():
     #? 4 {'new_name': 'lst'}
