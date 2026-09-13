@@ -24,20 +24,7 @@ cd "$REPO_ROOT"
 # ── 1. Ensure bd is on PATH ───────────────────────────────────────────────────
 if ! command -v bd &>/dev/null; then
   echo "bd not found — installing..."
-  if curl -sSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash; then
-    echo "bd installed via install script."
-  else
-    echo "Install script failed, trying direct dolt binary download..."
-    ARCH=$(uname -m)
-    [ "$ARCH" = "aarch64" ] && ARCH="arm64"
-    curl -fsSL "https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-${ARCH}.tar.gz" \
-      | tar -xz -C /tmp
-    mkdir -p "$HOME/.local/bin"
-    cp "/tmp/dolt-linux-${ARCH}/bin/dolt" "$HOME/.local/bin/bd"
-    chmod +x "$HOME/.local/bin/bd"
-    export PATH="$HOME/.local/bin:$PATH"
-    echo "bd installed to ~/.local/bin/bd"
-  fi
+  curl -sSL https://raw.githubusercontent.com/gastownhall/beads/main/scripts/install.sh | bash
 fi
 
 # PATH may need updating if bd was just installed
@@ -48,20 +35,48 @@ if ! command -v bd &>/dev/null; then
   exit 1
 fi
 
+# ── 1b. Ensure dolt is on PATH — bd's install script does not install it, and
+#        bd's Dolt backend needs the binary present separately ───────────────
+if ! command -v dolt &>/dev/null; then
+  echo "dolt not found — installing..."
+  ARCH=$(uname -m)
+  [ "$ARCH" = "aarch64" ] && ARCH="arm64"
+  curl -fsSL "https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-${ARCH}.tar.gz" \
+    | tar -xz -C /tmp
+  mkdir -p "$HOME/.local/bin"
+  cp "/tmp/dolt-linux-${ARCH}/bin/dolt" "$HOME/.local/bin/dolt"
+  chmod +x "$HOME/.local/bin/dolt"
+  rm -rf "/tmp/dolt-linux-${ARCH}"
+  export PATH="$HOME/.local/bin:$PATH"
+  echo "dolt installed to ~/.local/bin/dolt"
+fi
+
+if ! command -v dolt &>/dev/null; then
+  echo "ERROR: dolt still not found after installation attempt. Add ~/.local/bin to PATH." >&2
+  exit 1
+fi
+
 # ── 2. Ensure jq is available (needed for --json parsing) ────────────────────
 if ! command -v jq &>/dev/null; then
   echo "ERROR: jq is not installed. Install it with: apt-get install -y jq" >&2
   exit 1
 fi
 
-# ── 3. Initialize beads if not already done ──────────────────────────────────
+# ── 3. Bootstrap beads database if not already present ───────────────────────
+# This repo has a real Dolt remote (sync.remote in .beads/config.yaml) with
+# pushed history. `bd init --force` refuses once a remote has history, so a
+# fresh checkout must clone it instead.
 if ! bd list &>/dev/null 2>&1; then
-  echo "Initializing beads database..."
-  bd init --force --prefix jedi
-  bd import
+  echo "Bootstrapping beads database from the Dolt remote..."
+  bd bootstrap
 fi
 
 # ── 4. Ensure Python venv exists and dependencies are installed ──────────────
+# pip install -e needs the typeshed and django-stubs submodules present
+# (setup.py asserts on both), and a fresh checkout doesn't have them yet.
+echo "Ensuring submodules are present in the main checkout..."
+git submodule update --init
+
 if [ ! -d ".venv" ]; then
   echo "Creating Python virtual environment..."
   python3 -m venv .venv

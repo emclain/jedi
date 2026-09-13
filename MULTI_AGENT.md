@@ -73,4 +73,4 @@ The goal: the next agent should be able to run `bash scripts/agent-start.sh`, do
 
 ## Beads State Persistence
 
-`bd dolt push` is not configured — there is no dolt remote. Beads state is persisted via `.beads/issues.jsonl` in git. `agent-land.sh` handles this automatically; on a fresh checkout, `bd init --force --prefix jedi && bd import` restores state from that file.
+This repo has a real Dolt remote (`sync.remote` in `.beads/config.yaml`, schema migrated to v53 on 2026-09-13). `bd dolt push` works and should be used alongside `.beads/issues.jsonl` in git, not instead of it. `agent-land.sh` handles the export automatically; on a fresh checkout, `bd bootstrap` clones the Dolt database from the remote (do not use `bd init --force` — it refuses once a remote has history).

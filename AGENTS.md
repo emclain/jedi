@@ -45,7 +45,7 @@ https://arlobelshee.com/the-core-6-refactorings/
 # Work Tracking
 
 As a work tracking system, we use Beads (see instructions below)
-https://github.com/steveyegge/beads
+https://github.com/gastownhall/beads
 instead of unstructured markdown or Claude memory files. Start with a
 plan and work your way through breaking it down into smaller pieces,
 filing beads as you go.
@@ -63,29 +63,29 @@ This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get sta
 
 ## Beads Setup (fresh checkout)
 
-Beads requires the `bd` CLI and a local Dolt database. On a new machine or container:
+Beads requires the `bd` CLI and the `dolt` binary. On a new machine or container:
 
 ```bash
 # 1. Install the bd CLI
-curl -sSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
-# If that requires root, download the binary directly instead:
+curl -sSL https://raw.githubusercontent.com/gastownhall/beads/main/scripts/install.sh | bash
+# If that requires root, download the dolt binary directly instead of relying on bd's auto-install:
 #   ARCH=$(uname -m); [ "$ARCH" = "aarch64" ] && ARCH="arm64"
 #   curl -L "https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-$ARCH.tar.gz" | tar -xz -C /tmp
 #   cp /tmp/dolt-linux-$ARCH/bin/dolt ~/.local/bin/
 
-# 2. Initialize the local Dolt database from the checked-in issues.jsonl
-bd init --force --prefix jedi
+# 2. Clone the issue database from the remote
+bd bootstrap
 
-# 3. Import existing issues
-bd import
-
-# 4. Verify
+# 3. Verify
 bd list
 ```
 
-> Note: the Dolt database is runtime state (not in git). You must run `bd init` + `bd import`
-> on every fresh checkout or container. Export back with `bd export > .beads/issues.jsonl`
-> before committing.
+> This repo has a real Dolt remote (`sync.remote` in `.beads/config.yaml`), with pushed
+> history — `bd bootstrap` clones it. **Do not use `bd init --force`**: it refuses once a
+> remote has history ("remote 'origin' already has Dolt history"). The Dolt database
+> itself is still runtime state (not in git) and must be re-bootstrapped on every fresh
+> checkout or container; `.beads/issues.jsonl` is a git-tracked passive export for
+> interchange and PR-diff review, not the source of truth for restoring state.
 
 ## Setup
 
@@ -186,15 +186,18 @@ bd close <id>         # Complete work
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull origin refactoring-test-coverage
-   bd export > .beads/issues.jsonl   # persist beads state (bd dolt push is NOT configured)
+   bd dolt push                        # sync the Dolt remote (sync.remote in .beads/config.yaml)
+   bd export > .beads/issues.jsonl     # keep the git-tracked export in sync too
    git add .beads/issues.jsonl
    git diff --cached --quiet || git commit -m "bd sync: update issues.jsonl"
    git push origin refactoring-test-coverage
    git status  # MUST show "up to date with origin"
    ```
-   > **Note:** `bd dolt push` always fails in this environment — no dolt remote is configured.
-   > Use `bd export > .beads/issues.jsonl` + git commit + push instead. See MULTI_AGENT.md
-   > for details.
+   > **Note:** this repo has a real Dolt remote (schema migrated to v53 on 2026-09-13).
+   > Both `bd dolt push` and the `.beads/issues.jsonl` export are required, not either/or:
+   > `bd dolt push` is what `bd bootstrap`/`bd pull` on other checkouts sync against, and
+   > the JSONL export is what keeps issue changes visible in normal git diffs/PR review.
+   > See MULTI_AGENT.md for details.
 5. **Clean up** - Clear stashes, prune remote branches
 6. **Verify** - All changes committed AND pushed
 7. **Hand off** - Provide context for next session
