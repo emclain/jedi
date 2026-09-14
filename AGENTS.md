@@ -63,29 +63,34 @@ This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get sta
 
 ## Beads Setup (fresh checkout)
 
-Beads requires the `bd` CLI and the `dolt` binary. On a new machine or container:
+Beads requires the `bd` CLI and the `dolt` binary. This project runs beads in server mode, where
+`bd` runs a local `dolt sql-server` for the checkout (see "Beads Database" in MULTI_AGENT.md).
+On a new machine or container:
 
 ```bash
 # 1. Install the bd CLI
 curl -sSL https://raw.githubusercontent.com/gastownhall/beads/main/scripts/install.sh | bash
-# If that requires root, download the dolt binary directly instead of relying on bd's auto-install:
-#   ARCH=$(uname -m); [ "$ARCH" = "aarch64" ] && ARCH="arm64"
-#   curl -L "https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-$ARCH.tar.gz" | tar -xz -C /tmp
-#   cp /tmp/dolt-linux-$ARCH/bin/dolt ~/.local/bin/
 
-# 2. Clone the issue database from the remote
-bd bootstrap
+# 2. Install dolt, if it is not already on PATH (bd's install script does not install it)
+ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && ARCH="amd64"; [ "$ARCH" = "aarch64" ] && ARCH="arm64"
+curl -fsSL "https://github.com/dolthub/dolt/releases/latest/download/dolt-linux-$ARCH.tar.gz" | tar -xz -C /tmp
+cp /tmp/dolt-linux-$ARCH/bin/dolt ~/.local/bin/
 
-# 3. Verify
+# 3. Start the beads server, then clone the issue database from the Dolt remote
+bd dolt start
+bd bootstrap --yes
+
+# 4. Verify
 bd list
 ```
 
 > This repo has a real Dolt remote (`sync.remote` in `.beads/config.yaml`), with pushed
-> history — `bd bootstrap` clones it. **Do not use `bd init --force`**: it refuses once a
-> remote has history ("remote 'origin' already has Dolt history"). The Dolt database
-> itself is still runtime state (not in git) and must be re-bootstrapped on every fresh
-> checkout or container; `.beads/issues.jsonl` is a git-tracked passive export for
-> interchange and PR-diff review, not the source of truth for restoring state.
+> history — `bd bootstrap` clones it, and needs the server running first. **Do not use
+> `bd init --force`**: it refuses once a remote has history ("remote 'origin' already has Dolt
+> history"). The Dolt database itself is runtime state (not in git), in `.beads/dolt/`;
+> `scripts/agent-start.sh` runs step 3 automatically when it is missing. `.beads/issues.jsonl`
+> is a git-tracked passive export for interchange and PR-diff review, not the source of truth
+> for restoring state.
 
 ## Setup
 
@@ -151,7 +156,7 @@ script.refactor_type(line_nr, column, **kwargs)
 
 ## Multi-Agent Parallelism
 
-When multiple instances are running from the same checkout, see **[MULTI_AGENT.md](MULTI_AGENT.md)**. In brief: `bash scripts/agent-start.sh` → do the work → `bash scripts/agent-land.sh`. Each agent works on exactly one issue, then stops.
+When multiple instances are running in one environment, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: run `bash scripts/agent-start.sh` in the primary checkout to claim one issue and get a worktree, work in that worktree, and land with `bash scripts/agent-land.sh`. Never edit files or commit in the primary checkout — it holds the shared beads server and venv, zuban's rename tests read it, and `agent-start.sh` only fast-forwards it. Each agent works on exactly one issue, then stops.
 
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
