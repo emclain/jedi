@@ -179,9 +179,11 @@ async def run_rename(client, case: RefactoringCase):
     code = case._code
     new_name = case._kwargs.get('new_name', 'renamed')
 
-    # Write code to a temp file so the server can find it
+    # Write code to a temp file so the server can find it. Like
+    # RefactoringCase.refactor, use the fixture's _path when given: relative
+    # imports only resolve from the file's real location.
     tmpdir = get_tmpdir()
-    tmpfile = os.path.join(tmpdir, 'rename.py')
+    tmpfile = os.path.join(tmpdir, case._kwargs.get('_path', 'rename.py'))
     with open(tmpfile, 'w') as f:
         f.write(code)
     uri = 'file://' + tmpfile
@@ -256,12 +258,9 @@ async def run_rename(client, case: RefactoringCase):
         return case.type, None
 
     if case.type == 'diff':
-        # Produce per-file diffs: definition files first, rename.py last
+        # Produce per-file diffs
         tmpdir = get_tmpdir()
         uri_prefix = 'file://' + tmpdir + '/'
-
-        def uri_sort_key(u):
-            return (1 if u == uri else 0, u)
 
         def uri_to_rel_path(file_uri):
             if file_uri.startswith(uri_prefix):
@@ -278,9 +277,13 @@ async def run_rename(client, case: RefactoringCase):
                 for old, new in renames
             )
         ]
-        for file_uri in sorted(edits_by_uri.keys(), key=uri_sort_key):
+        # then changed files, sorted by path like Refactoring.get_changed_files
+        rel_paths = sorted(
+            ((uri_to_rel_path(u), u) for u in edits_by_uri),
+            key=lambda p: Path(p[0]),
+        )
+        for rel_path, file_uri in rel_paths:
             file_edits = edits_by_uri[file_uri]
-            rel_path = uri_to_rel_path(file_uri)
 
             abs_path = os.path.join(tmpdir, rel_path)
             try:
