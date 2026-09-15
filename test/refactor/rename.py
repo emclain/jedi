@@ -691,6 +691,109 @@ def a():
 +            y = 3
 +        return y
      return x
+# -------------------------------------------------- nonlocal-chain-from-outer
+def a():
+    #? 4 {'new_name': 'y'}
+    x = 1
+    def b():
+        nonlocal x
+        def c():
+            nonlocal x
+            x = 3
+            return x
+        x = 2
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,12 +1,12 @@
+ def a():
+     #? 4 {'new_name': 'y'}
+-    x = 1
++    y = 1
+     def b():
+-        nonlocal x
++        nonlocal y
+         def c():
+-            nonlocal x
+-            x = 3
+-            return x
+-        x = 2
+-    return x
++            nonlocal y
++            y = 3
++            return y
++        y = 2
++    return y
+# -------------------------------------------------- nonlocal-chain-from-inner
+def a():
+    x = 1
+    def b():
+        nonlocal x
+        def c():
+            nonlocal x
+            #? 12 {'new_name': 'y'}
+            x = 3
+            return x
+        x = 2
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,12 +1,12 @@
+ def a():
+-    x = 1
++    y = 1
+     def b():
+-        nonlocal x
++        nonlocal y
+         def c():
+-            nonlocal x
++            nonlocal y
+             #? 12 {'new_name': 'y'}
+-            x = 3
+-            return x
+-        x = 2
+-    return x
++            y = 3
++            return y
++        y = 2
++    return y
+# -------------------------------------------------- nonlocal-chain-broken-by-local
+def a():
+    #? 4 {'new_name': 'y'}
+    x = 1
+    def b():
+        nonlocal x
+        x = 2
+        def c():
+            x = 3
+            def d():
+                nonlocal x
+                x = 4
+            return x
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,14 +1,14 @@
+ def a():
+     #? 4 {'new_name': 'y'}
+-    x = 1
++    y = 1
+     def b():
+-        nonlocal x
+-        x = 2
++        nonlocal y
++        y = 2
+         def c():
+             x = 3
+             def d():
+                 nonlocal x
+                 x = 4
+             return x
+-    return x
++    return y
 # -------------------------------------------------- shadow-builtin
 def shadow():
     #? 4 {'new_name': 'lst'}

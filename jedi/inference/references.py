@@ -61,12 +61,21 @@ def _find_defining_names(module_context, tree_name):
         ))
 
     found_names |= set(_find_global_variables(found_names, tree_name.value))
-    found_names |= set(_find_nonlocal_variables(module_context, found_names, tree_name.value))
-    for name in list(found_names):
-        if name.api_type == 'param' or name.tree_name is None \
-                or name.tree_name.parent.type == 'trailer':
-            continue
-        found_names |= set(_add_names_in_same_context(name.parent_context, name.string_name))
+    # A nonlocal declaration only links a scope to the nearest enclosing one
+    # that binds the name, so repeat until a chain of them yields nothing new.
+    new_names = set(found_names)
+    while new_names:
+        for name in new_names:
+            if name.api_type == 'param' or name.tree_name is None \
+                    or name.tree_name.parent.type == 'trailer':
+                continue
+            found_names |= set(_add_names_in_same_context(name.parent_context, name.string_name))
+        found_tree_names = {n.tree_name for n in found_names}
+        new_names = {
+            n for n in _find_nonlocal_variables(module_context, found_names, tree_name.value)
+            if n.tree_name not in found_tree_names
+        }
+        found_names |= new_names
     return set(_resolve_names(found_names))
 
 
