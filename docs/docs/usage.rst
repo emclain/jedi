@@ -13,7 +13,7 @@ Below you can also find a list of :ref:`recipes for type hinting <recipes>`.
 .. _language-servers:
 
 Language Servers
---------------
+----------------
 
 - `jedi-language-server <https://github.com/pappasam/jedi-language-server>`_
 - `python-language-server <https://github.com/palantir/python-language-server>`_ (currently unmaintained)

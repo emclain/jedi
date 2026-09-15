@@ -1,5 +1,6 @@
 import re
 from textwrap import dedent
+from typing import Any
 from inspect import Parameter
 
 from parso.python.token import PythonTokenTypes
@@ -265,7 +266,7 @@ class Completion:
                         elif type_ == 'for_stmt':
                             allowed_transitions.append('else')
 
-        completion_names = []
+        completion_names: list[Any] = []
 
         kwargs_only = False
         if any(t in allowed_transitions for t in (PythonTokenTypes.NAME,
@@ -290,6 +291,8 @@ class Completion:
                 )
             elif nonterminals[-1] in ('trailer', 'dotted_name') and nodes[-1] == '.':
                 dot = self._module_node.get_leaf_for_position(self._position)
+                if dot.type == "newline":
+                    dot = dot.get_previous_leaf()
                 if dot.type == "endmarker":
                     # This is a bit of a weird edge case, maybe we can somehow
                     # generalize this.

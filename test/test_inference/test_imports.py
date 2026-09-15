@@ -30,13 +30,13 @@ def test_find_module_basic():
 
 def test_find_module_package():
     file_io, is_package = _find_module('json')
-    assert file_io.path.parts[-2:] == ('json', '__init__.py')
+    assert file_io.path.parts[-2:] == ('json', '__init__.py')  # type: ignore[union-attr]
     assert is_package is True
 
 
 def test_find_module_not_package():
     file_io, is_package = _find_module('io')
-    assert file_io.path.name == 'io.py'
+    assert file_io.path.name == 'io.py'  # type: ignore[union-attr]
     assert is_package is False
 
 

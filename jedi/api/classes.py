@@ -96,7 +96,7 @@ class BaseName:
     @property
     def module_path(self) -> Optional[Path]:
         """
-        Shows the file path of a module. e.g. ``/usr/lib/python3.9/os.py``
+        Shows the file path of a module. e.g. ``/usr/lib/python3.14/os.py``
         """
         module = self._get_module_context()
         if module.is_stub() or not module.is_compiled():
@@ -831,7 +831,7 @@ class Signature(BaseSignature):
     def index(self):
         """
         Returns the param index of the current cursor position.
-        Returns None if the index cannot be found in the curent call.
+        Returns None if the index cannot be found in the current call.
 
         :rtype: int
         """

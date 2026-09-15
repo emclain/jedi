@@ -17,11 +17,11 @@ import sys
 try:
     import urllib.request as urllib2
 except ImportError:
-    import urllib2
+    import urllib2  # type: ignore[import-not-found, no-redef]
 import gc
 from os.path import abspath, dirname
 
-import objgraph
+import objgraph  # type: ignore[import-untyped]
 
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import jedi

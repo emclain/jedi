@@ -7,10 +7,10 @@ The test suite depends on ``pytest``::
 
     pip install pytest
 
-If you want to test only a specific Python version (e.g. Python 3.8), it is as
+If you want to test only a specific Python version (e.g. Python 3.14), it is as
 easy as::
 
-    python3.8 -m pytest
+    python3.14 -m pytest
 
 Tests are also run automatically on `GitHub Actions
 <https://github.com/davidhalter/jedi/actions>`_.

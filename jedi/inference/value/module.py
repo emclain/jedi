@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING, Any
 
 from jedi.inference.cache import inference_state_method_cache
 from jedi.inference.names import AbstractNameDefinition, ModuleName
@@ -12,6 +12,9 @@ from jedi.inference.helpers import values_from_qualified_names
 from jedi.inference.compiled import create_simple_object
 from jedi.inference.base_value import ValueSet
 from jedi.inference.context import ModuleContext
+
+if TYPE_CHECKING:
+    from jedi.inference import InferenceState
 
 
 class _ModuleAttributeName(AbstractNameDefinition):
@@ -35,6 +38,11 @@ class _ModuleAttributeName(AbstractNameDefinition):
 
 
 class SubModuleDictMixin:
+    inference_state: "InferenceState"
+    is_package: Any
+    py__path__: Any
+    as_context: Any
+
     @inference_state_method_cache()
     def sub_modules_dict(self):
         """
@@ -57,6 +65,10 @@ class SubModuleDictMixin:
 
 class ModuleMixin(SubModuleDictMixin):
     _module_name_class = ModuleName
+    tree_node: Any
+    string_names: Any
+    sub_modules_dict: Any
+    py__file__: Any
 
     def get_filters(self, origin_scope=None):
         yield MergedFilter(

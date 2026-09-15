@@ -3,7 +3,7 @@ Filters are objects that you can use to filter names in different scopes. They
 are needed for name resolution.
 """
 from abc import abstractmethod
-from typing import List, MutableMapping, Type
+from typing import MutableMapping, Type, Any
 import weakref
 
 from parso.python.tree import Name, UsedNamesMapping
@@ -16,8 +16,8 @@ from jedi.inference.utils import to_list
 from jedi.inference.names import TreeNameDefinition, ParamName, \
     AnonymousParamName, AbstractNameDefinition, NameWrapper
 
-_definition_name_cache: MutableMapping[UsedNamesMapping, List[Name]]
-_definition_name_cache = weakref.WeakKeyDictionary()
+_definition_name_cache: 'MutableMapping[UsedNamesMapping, dict[str, tuple[Name, ...]]]' \
+    = weakref.WeakKeyDictionary()
 
 
 class AbstractFilter:
@@ -346,6 +346,9 @@ class _OverwriteMeta(type):
 
 
 class _AttributeOverwriteMixin:
+    overwritten_methods: Any
+    _wrapped_value: Any
+
     def get_filters(self, *args, **kwargs):
         yield SpecialMethodFilter(self, self.overwritten_methods, self._wrapped_value)
         yield from self._wrapped_value.get_filters(*args, **kwargs)

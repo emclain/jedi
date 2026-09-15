@@ -93,7 +93,7 @@ def time_cache(seconds):
             cache[key] = time.time(), result
             return result
 
-        wrapper.clear_cache = lambda: cache.clear()
+        wrapper.clear_cache = lambda: cache.clear()  # type: ignore[attr-defined]
         return wrapper
 
     return decorator

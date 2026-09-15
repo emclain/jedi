@@ -1,32 +1,14 @@
-[tool.mypy]
-# Exclude our copies of external stubs
-exclude = "^jedi/third_party"
+[tool.zuban]
+strict = true
+enable_error_code = ["ignore-without-code"]
 
-show_error_codes = true
-enable_error_code = "ignore-without-code"
-
-# Ensure generics are explicit about what they are (e.g: `List[str]` rather than
-# just `List`)
-disallow_any_generics = true
-
-disallow_subclassing_any = true
-
-# Avoid creating future gotchas emerging from bad typing
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_return_any = true
-warn_unused_configs = true
-
-warn_unreachable = true
-
-# Require values to be explicitly re-exported; this makes things easier for
-# Flake8 too and avoids accidentally importing thing from the "wrong" place
-# (which helps avoid circular imports)
-implicit_reexport = false
-
-strict_equality = true
-
-[[tool.mypy.overrides]]
-# Various __init__.py files which contain re-exports we want to implicitly make.
-module = ["jedi", "jedi.inference.compiled", "jedi.inference.value", "parso"]
+# Revert some --strict specific flags:
+allow_untyped_calls = true
+allow_untyped_defs = true
+allow_incomplete_defs = true
+allow_untyped_globals = true
+untyped_strict_optional = false
 implicit_reexport = true
+
+# Exclude our copies of external stubs
+exclude = "^jedi/third_party|^test/(completion|refactor|static_analysis|examples)/"

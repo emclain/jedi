@@ -102,7 +102,7 @@ Features and Limitations
 Jedi's features are listed here:
 `Features <https://jedi.readthedocs.org/en/latest/docs/features.html>`_.
 
-You can run Jedi on Python 3.8+ but it should also
+You can run Jedi on Python 3.10+ but it should also
 understand code that is older than those versions. Additionally you should be
 able to use `Virtualenvs <https://jedi.readthedocs.org/en/latest/docs/api.html#environments>`_
 very well.
@@ -183,10 +183,10 @@ The test suite uses ``pytest``::
 
     pip install pytest
 
-If you want to test only a specific Python version (e.g. Python 3.8), it is as
+If you want to test only a specific Python version (e.g. Python 3.14), it is as
 easy as::
 
-    python3.8 -m pytest
+    python3.14 -m pytest
 
 For more detailed information visit the `testing documentation
 <https://jedi.readthedocs.org/en/latest/docs/testing.html>`_.

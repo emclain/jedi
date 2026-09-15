@@ -35,7 +35,6 @@ Usage:
 Options:
   -h --help             Show this screen.
   --record=<file>       Exceptions are recorded in here [default: record.json].
-  -f, --fs-cache        By default, file system cache is off for reproducibility.
   -n, --maxtries=<nr>   Maximum of random tries [default: 100]
   -d, --debug           Jedi print debugging when an error is raised.
   -s                    Shows the path/line numbers of every completion before it starts.
@@ -187,7 +186,6 @@ def main(arguments):
                'pudb' if arguments['--pudb'] else None
     record = arguments['--record']
 
-    jedi.settings.use_filesystem_cache = arguments['--fs-cache']
     if arguments['--debug']:
         jedi.set_debug_function()
 

@@ -370,16 +370,16 @@ def import_module_by_names(inference_state, import_names, sys_path=None,
         i.value if isinstance(i, tree.Name) else i
         for i in import_names
     )
-    value_set = [None]
+    base = [None]
     for i, name in enumerate(import_names):
-        value_set = ValueSet.from_sets([
+        base = value_set = ValueSet.from_sets([
             import_module(
                 inference_state,
                 str_import_names[:i+1],
                 parent_module_value,
                 sys_path,
-                prefer_stubs=prefer_stubs,
-            ) for parent_module_value in value_set
+                prefer_stubs=prefer_stubs,  # type: ignore[call-arg]
+            ) for parent_module_value in base
         ])
         if not value_set:
             message = 'No module named ' + '.'.join(str_import_names)
@@ -474,7 +474,7 @@ def _load_python_module(inference_state, file_io,
     )
 
 
-def _load_builtin_module(inference_state, import_names=None, sys_path=None):
+def _load_builtin_module(inference_state, import_names, sys_path):
     project = inference_state.project
     if sys_path is None:
         sys_path = inference_state.get_sys_path()

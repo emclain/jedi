@@ -62,6 +62,8 @@ I need to mention now that lazy type inference is really good because it
 only *inferes* what needs to be *inferred*. All the statements and modules
 that are not used are just being ignored.
 """
+from typing import Any
+
 import parso
 from jedi.file_io import FileIO
 
@@ -82,6 +84,8 @@ from jedi.plugins import plugin_manager
 
 
 class InferenceState:
+    analysis_modules: "list[Any]"
+
     def __init__(self, project, environment=None, script_path=None):
         if environment is None:
             environment = project.get_environment()
@@ -121,7 +125,7 @@ class InferenceState:
         debug.dbg('execute result: %s in %s', value_set, value)
         return value_set
 
-    # mypy doesn't suppport decorated propeties (https://github.com/python/mypy/issues/1362)
+    # mypy doesn't support decorated properties (https://github.com/python/mypy/issues/1362)
     @property
     @inference_state_function_cache()
     def builtins_module(self):
@@ -134,6 +138,20 @@ class InferenceState:
     def typing_module(self):
         typing_module, = self.import_module(('typing',))
         return typing_module
+
+    @property
+    @inference_state_function_cache()
+    def types_module(self):
+        typing_module, = self.import_module(('types',))
+        return typing_module
+
+    @inference_state_function_cache()
+    def typing_tuple(self):
+        return self.typing_module.py__getattribute__("Tuple")
+
+    @inference_state_function_cache()
+    def typing_type(self):
+        return self.typing_module.py__getattribute__("Type")
 
     def reset_recursion_limitations(self):
         self.recursion_detector = recursion.RecursionDetector()

@@ -36,7 +36,7 @@ try:
                 # pytest resets the stream at the end - causes troubles. Since
                 # after every output the stream is reset automatically we don't
                 # need this.
-                initialise.atexit_done = True
+                initialise.atexit_done = True  # type: ignore[attr-defined]
                 try:
                     init(strip=False)
                 except Exception:

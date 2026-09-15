@@ -38,7 +38,7 @@ py__doc__()                            Returns the docstring for a value.
 """
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, TYPE_CHECKING, Any
 
 from jedi import debug
 from jedi.parser_utils import get_cached_parent_scope, expr_is_dotted, \
@@ -60,6 +60,9 @@ from jedi.plugins import plugin_manager
 from inspect import Parameter
 from jedi.inference.names import BaseTreeParamName
 from jedi.inference.signature import AbstractSignature
+
+if TYPE_CHECKING:
+    from jedi.inference import InferenceState
 
 
 class ClassName(TreeNameDefinition):
@@ -197,6 +200,15 @@ def get_dataclass_param_names(cls) -> List[DataclassParamName]:
 
 
 class ClassMixin:
+    tree_node: Any
+    parent_context: Any
+    inference_state: InferenceState
+    py__bases__: Any
+    get_metaclasses: Any
+    get_metaclass_filters: Any
+    get_metaclass_signatures: Any
+    list_type_vars: Any
+
     def is_class(self):
         return True
 
@@ -273,7 +285,6 @@ class ClassMixin:
         if not is_instance and include_type_when_class:
             from jedi.inference.compiled import builtin_from_name
             type_ = builtin_from_name(self.inference_state, 'type')
-            assert isinstance(type_, ClassValue)
             if type_ != self:
                 # We are not using execute_with_values here, because the
                 # plugin function for type would get executed instead of an
@@ -365,7 +376,8 @@ class ClassMixin:
             if sigs:
                 return sigs
         args = ValuesArguments([])
-        init_funcs = self.py__call__(args).py__getattribute__('__init__')
+        instance = self.py__call__(args)
+        init_funcs = init_or_new_func(instance)
 
         dataclass_sigs = self._get_dataclass_transform_signatures()
         if dataclass_sigs:
@@ -456,6 +468,23 @@ class ClassMixin:
                 TupleGenericManager(tuple(remap_type_vars()))
             )])
         return ValueSet({self})
+
+
+def init_or_new_func(value):
+    init_funcs = value.py__getattribute__('__init__')
+    if len(init_funcs) == 1:
+        init = next(iter(init_funcs))
+        try:
+            class_context = init.class_context
+        except AttributeError:
+            pass
+        else:
+            # In the case where we are on object.__init__, we try to use
+            # __new__.
+            if class_context.get_root_context().is_builtins_module() \
+                    and init.class_context.name.string_name == "object":
+                return value.py__getattribute__('__new__')
+    return init_funcs
 
 
 class DataclassParamName(BaseTreeParamName):
@@ -681,6 +710,9 @@ class ClassValue(ClassMixin, FunctionAndClassBase, metaclass=CachedMetaClass):
         It returns ``True`` if ``class X(init=False):`` else ``False``.
         """
         bases_arguments = self._get_bases_arguments()
+
+        if bases_arguments is None:
+            return None
 
         if bases_arguments.argument_node.type != "arglist":
             # If it is not inheriting from the base model and having

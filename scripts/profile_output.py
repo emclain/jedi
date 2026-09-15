@@ -56,7 +56,7 @@ def main(args):
         run(code, i, infer=infer)
 
     if args['--precision']:
-        pstats.f8 = f8
+        pstats.f8 = f8  # type: ignore[attr-defined]  # TODO this does not seem to exist?!
 
     jedi.set_debug_function(notices=args['--debug'])
     if args['--omit']:

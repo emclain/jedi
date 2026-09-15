@@ -26,13 +26,13 @@ def test_find_system_environments():
 
 @pytest.mark.parametrize(
     'version',
-    ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+    jedi.api.environment._SUPPORTED_PYTHONS,
 )
 def test_versions(version):
     try:
         env = get_system_environment(version)
     except InvalidPythonEnvironment:
-        if int(version.replace('.', '')) == str(sys.version_info[0]) + str(sys.version_info[1]):
+        if version.replace('.', '') == str(sys.version_info[0]) + str(sys.version_info[1]):
             # At least the current version has to work
             raise
         pytest.skip()

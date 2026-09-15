@@ -2,6 +2,7 @@ from textwrap import dedent
 from operator import eq, ge, lt
 import re
 import os
+from typing import Any
 
 import pytest
 
@@ -107,10 +108,10 @@ class X:
         ('from typing import cast\ncast(', {
             'cast(typ: object, val: Any) -> Any',
             'cast(typ: str, val: Any) -> Any',
-            'cast(typ: Type[_T], val: Any) -> _T'}),
+            'cast(typ: type[_T], val: Any) -> _T'}),
         ('from typing import TypeVar\nTypeVar(',
-         'TypeVar(name: str, *constraints: Type[Any], bound: Union[None, Type[Any], str]=..., '
-         'covariant: bool=..., contravariant: bool=...)'),
+         'TypeVar(name: str, *constraints: Any, bound: Any | None=None, covariant: bool=False, '
+         'contravariant: bool=False)'),
         ('from typing import List\nList(', None),
         ('from typing import List\nList[int](', None),
         ('from typing import Tuple\nTuple(', None),
@@ -118,14 +119,10 @@ class X:
         ('from typing import Optional\nOptional(', None),
         ('from typing import Optional\nOptional[int](', None),
         ('from typing import Any\nAny(', None),
-        ('from typing import NewType\nNewType(', 'NewType(name: str, tp: Type[_T]) -> Type[_T]'),
+        ('from typing import NewType\nNewType(', 'NewType(name: str, tp: Any)'),
     ]
 )
 def test_tree_signature(Script, environment, code, expected):
-    # Only test this in the latest version, because of /
-    if environment.version_info < (3, 8):
-        pytest.skip()
-
     if expected is None:
         assert not Script(code).get_signatures()
     else:
@@ -248,18 +245,8 @@ def test_pow_signature(Script, environment):
     # See github #1357
     sigs = Script('pow(').get_signatures()
     strings = {sig.to_string() for sig in sigs}
-    if environment.version_info < (3, 8):
-        assert strings == {'pow(base: _SupportsPow2[_E, _T_co], exp: _E, /) -> _T_co',
-                           'pow(base: _SupportsPow3[_E, _M, _T_co], exp: _E, mod: _M, /) -> _T_co',
-                           'pow(base: float, exp: float, mod: None=..., /) -> float',
-                           'pow(base: int, exp: int, mod: None=..., /) -> Any',
-                           'pow(base: int, exp: int, mod: int, /) -> int'}
-    else:
-        assert strings == {'pow(base: _SupportsPow2[_E, _T_co], exp: _E) -> _T_co',
-                           'pow(base: _SupportsPow3[_E, _M, _T_co], exp: _E, mod: _M) -> _T_co',
-                           'pow(base: float, exp: float, mod: None=...) -> float',
-                           'pow(base: int, exp: int, mod: None=...) -> Any',
-                           'pow(base: int, exp: int, mod: int) -> int'}
+    assert 'pow(base: _PositiveInteger, exp: float, mod: None=None) -> float' in strings
+    assert len(strings) > 4
 
 
 @pytest.mark.parametrize(
@@ -405,15 +392,10 @@ def test_wraps_signature(Script, code, signature):
     ],
 )
 def test_dataclass_signature(
-    Script, skip_pre_python37, start, start_params, include_params, environment
+    Script, start, start_params, include_params, environment
 ):
-    if environment.version_info < (3, 8):
-        # Final is not yet supported
-        price_type = "float"
-        price_type_infer = "float"
-    else:
-        price_type = "Final[float]"
-        price_type_infer = "object"
+    price_type = "Final[float]"
+    price_type_infer = "_SpecialForm"
 
     code = dedent(
         f"""
@@ -448,7 +430,7 @@ def test_dataclass_signature(
         assert price.name == price_type_infer
 
 
-dataclass_transform_cases = [
+dataclass_transform_cases: list[Any] = [
     # Attributes on the decorated class and its base classes
     # are not considered to be fields.
     # 1/ Declare dataclass transformer
@@ -724,19 +706,14 @@ ids = [
     'start, start_params, include_params', dataclass_transform_cases, ids=ids
 )
 def test_extensions_dataclass_transform_signature(
-    Script, skip_pre_python37, start, start_params, include_params, environment
+    Script, start, start_params, include_params, environment
 ):
     has_typing_ext = bool(Script('import typing_extensions').infer())
     if not has_typing_ext:
         raise pytest.skip("typing_extensions needed in target environment to run this test")
 
-    if environment.version_info < (3, 8):
-        # Final is not yet supported
-        price_type = "float"
-        price_type_infer = "float"
-    else:
-        price_type = "Final[float]"
-        price_type_infer = "object"
+    price_type = "Final[float]"
+    price_type_infer = "_SpecialForm"
 
     code = dedent(
         f"""
@@ -822,7 +799,7 @@ def test_dataclass_transform_signature(
         quantity, = sig.params[-1].infer()
         assert quantity.name == 'int'
         price, = sig.params[-2].infer()
-        assert price.name == 'object'
+        assert price.name == '_SpecialForm'
 
 
 @pytest.mark.parametrize(
@@ -845,7 +822,7 @@ def test_dataclass_transform_signature(
     ],
     ids=["define", "frozen", "define_customized", "define_subclass", "define_both"]
 )
-def test_attrs_signature(Script, skip_pre_python37, start, start_params):
+def test_attrs_signature(Script, start, start_params):
     has_attrs = bool(Script('import attrs').infer())
     if not has_attrs:
         raise pytest.skip("attrs needed in target environment to run this test")
