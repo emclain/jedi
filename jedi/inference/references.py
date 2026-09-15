@@ -135,21 +135,18 @@ def _find_nonlocal_variables(module_context, names, search_name):
         if name.tree_name is None or name.tree_name.parent.type == 'nonlocal_stmt':
             continue
 
-        tree_name = name.tree_name
-        funcdef = tree_name.search_ancestor('funcdef', 'classdef', 'lambdef')
+        # Name is inside a function: find nonlocal decl in the same funcdef
+        funcdef = name.tree_name.search_ancestor('funcdef', 'classdef', 'lambdef')
+        for nl_name in nonlocal_stmts:
+            if nl_name.search_ancestor('funcdef', 'classdef', 'lambdef') == funcdef:
+                yield from _find_names(module_context, nl_name)
+                break
 
-        if funcdef is not None:
-            # Name is inside a function: find nonlocal decl in the same funcdef
-            for nl_name in nonlocal_stmts:
-                if nl_name.search_ancestor('funcdef', 'classdef', 'lambdef') == funcdef:
-                    yield from _find_names(module_context, nl_name)
-                    break
-        else:
-            # Name is in outer scope: find nonlocal decls whose goto() points here
-            for nl_name in nonlocal_stmts:
-                nl_name_obj = module_context.create_name(nl_name)
-                if any(g.tree_name in found_tree_names for g in nl_name_obj.goto()):
-                    yield from _find_names(module_context, nl_name)
+    # Name is in an enclosing scope: find nonlocal decls whose goto() points here
+    for nl_name in nonlocal_stmts:
+        nl_name_obj = module_context.create_name(nl_name)
+        if any(g.tree_name in found_tree_names for g in nl_name_obj.goto()):
+            yield from _find_names(module_context, nl_name)
 
 
 def find_references(module_context, tree_name, only_in_module=False):

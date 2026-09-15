@@ -638,6 +638,59 @@ def outer():
 +        y = 20
 +        return y
      return inner()
+# -------------------------------------------------- nonlocal-rename-from-outer
+def outer():
+    #? 4 {'new_name': 'y'}
+    x = 10
+    def inner():
+        nonlocal x
+        x = 20
+        return x
+    return inner()
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,9 +1,9 @@
+ def outer():
+     #? 4 {'new_name': 'y'}
+-    x = 10
++    y = 10
+     def inner():
+-        nonlocal x
+-        x = 20
+-        return x
++        nonlocal y
++        y = 20
++        return y
+     return inner()
+# -------------------------------------------------- nonlocal-rename-from-shadowing-middle
+def a():
+    x = 1
+    def b():
+        #? 8 {'new_name': 'y'}
+        x = 2
+        def c():
+            nonlocal x
+            x = 3
+        return x
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -2,10 +2,10 @@
+     x = 1
+     def b():
+         #? 8 {'new_name': 'y'}
+-        x = 2
++        y = 2
+         def c():
+-            nonlocal x
+-            x = 3
+-        return x
++            nonlocal y
++            y = 3
++        return y
+     return x
 # -------------------------------------------------- shadow-builtin
 def shadow():
     #? 4 {'new_name': 'lst'}
