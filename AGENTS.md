@@ -156,7 +156,7 @@ script.refactor_type(line_nr, column, **kwargs)
 
 ## Multi-Agent Parallelism
 
-When multiple instances are running in one environment, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: run `bash scripts/agent-start.sh` in the primary checkout to claim one issue and get a worktree, work in that worktree, and land with `bash scripts/agent-land.sh`. Never edit files or commit in the primary checkout — it holds the shared beads server and venv, zuban's rename tests read it, and `agent-start.sh` only fast-forwards it. Each agent works on exactly one issue, then stops.
+When multiple instances are running in one environment, see **[MULTI_AGENT.md](MULTI_AGENT.md)** for the full procedure. In brief: run `bash scripts/agent-start.sh` in the primary checkout to claim one issue and get a worktree (pass an issue id to pick it, or `--no-claim` for work that isn't an issue), work in that worktree, and land with `bash scripts/agent-land.sh`. Never edit files or commit in the primary checkout — it holds the shared beads server and venv, zuban's rename tests read it, and `agent-start.sh` only fast-forwards it. Each agent works on exactly one issue, then stops.
 
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
