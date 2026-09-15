@@ -794,6 +794,96 @@ def a():
              return x
 -    return x
 +    return y
+# -------------------------------------------------- nonlocal-nested-use-before-declaration
+def outer():
+    x = 1
+    def inner():
+        def deeper():
+            #? 19 {'new_name': 'y'}
+            return x
+        nonlocal x
+        x = 2
+        return deeper()
+    inner()
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,12 +1,12 @@
+ def outer():
+-    x = 1
++    y = 1
+     def inner():
+         def deeper():
+             #? 19 {'new_name': 'y'}
+-            return x
+-        nonlocal x
+-        x = 2
++            return y
++        nonlocal y
++        y = 2
+         return deeper()
+     inner()
+-    return x
++    return y
+# -------------------------------------------------- nonlocal-nested-local-before-declaration
+def outer():
+    #? 4 {'new_name': 'y'}
+    x = 1
+    def inner():
+        def deeper():
+            x = 9
+            return x
+        nonlocal x
+        x = 2
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,11 +1,11 @@
+ def outer():
+     #? 4 {'new_name': 'y'}
+-    x = 1
++    y = 1
+     def inner():
+         def deeper():
+             x = 9
+             return x
+-        nonlocal x
+-        x = 2
+-    return x
++        nonlocal y
++        y = 2
++    return y
+# -------------------------------------------------- nonlocal-declaration-in-branch
+def outer(flag):
+    x = 1
+    def inner():
+        if flag:
+            nonlocal x
+        else:
+            #? 12 {'new_name': 'y'}
+            x = 5
+    inner()
+    return x
+# ++++++++++++++++++++++++++++++++++++++++++++++++++
+--- rename.py
++++ rename.py
+@@ -1,11 +1,11 @@
+ def outer(flag):
+-    x = 1
++    y = 1
+     def inner():
+         if flag:
+-            nonlocal x
++            nonlocal y
+         else:
+             #? 12 {'new_name': 'y'}
+-            x = 5
++            y = 5
+     inner()
+-    return x
++    return y
 # -------------------------------------------------- shadow-builtin
 def shadow():
     #? 4 {'new_name': 'lst'}
