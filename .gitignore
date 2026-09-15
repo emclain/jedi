@@ -24,3 +24,5 @@ record.json
 # Beads runtime state (audit log, temp files)
 .beads/interactions.jsonl
 .beads/jedi-*
+# Per-worktree claim written by scripts/agent-start.sh
+.agent-env
