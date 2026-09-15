@@ -77,7 +77,7 @@ bash scripts/agent-land.sh
 What it does, in order:
 
 1. Runs the quality gates with the primary checkout's venv: `scripts/smoke_dependents.py` (with `PYTHONPATH` set to the worktree) and `python3 -m pytest -v -k "refactor"`.
-2. Merges `origin/refactoring-test-coverage` and pushes `work/<id>:refactoring-test-coverage`, retrying on rejection. The issue stays `in_progress` until the code is on origin.
+2. Merges `origin/refactoring-test-coverage` and pushes `work/<id>:refactoring-test-coverage`, retrying when another instance landed first; a push that fails for any other reason stops the script. The issue stays `in_progress` until the code is on origin.
 3. Closes the issue.
 4. Commits a fresh `bd export` to `.beads/issues.jsonl` and pushes it, retrying the same way; then runs `bd dolt push`.
 5. Removes the worktree and its branch.

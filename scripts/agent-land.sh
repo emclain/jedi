@@ -86,6 +86,32 @@ commit_export() {
   fi
 }
 
+# Push $branch to refactoring-test-coverage. `git push` exits 1 both when
+# another instance landed first and when the push can't happen at all (auth,
+# network, a hook), so a failure is retried only if
+# origin/refactoring-test-coverage has moved since we last saw it. Any
+# arguments run as a command after each merge.
+push_branch() {
+  local attempt seen
+  for attempt in 1 2 3 4 5 6 7 8 9 10; do
+    seen="$(git rev-parse origin/refactoring-test-coverage)"
+    if git push origin "$branch:refactoring-test-coverage"; then
+      return 0
+    fi
+    git fetch origin refactoring-test-coverage
+    if [ "$(git rev-parse origin/refactoring-test-coverage)" = "$seen" ]; then
+      echo "ERROR: push failed" >&2
+      exit 1
+    fi
+    echo "Push rejected — another instance landed first, retrying..."
+    sleep 1
+    merge_origin
+    "$@"
+  done
+  echo "ERROR: push still rejected after $attempt attempts." >&2
+  exit 1
+}
+
 # ── 1. Quality gates ─────────────────────────────────────────────────────────
 echo "=== Quality gates ==="
 # The venv lives in the primary checkout, with jedi installed there in editable
@@ -102,11 +128,7 @@ python3 -m pytest -v -k "refactor"
 # stops on a conflict never leaves a closed issue behind.
 echo "=== Pushing code ==="
 merge_origin
-until git push origin "$branch:refactoring-test-coverage"; do
-  echo "Push rejected — another instance landed first, retrying..."
-  sleep 1
-  merge_origin
-done
+push_branch
 
 # ── 3. Close the issue ───────────────────────────────────────────────────────
 if [ -n "$claimed" ]; then
@@ -119,12 +141,7 @@ fi
 # for git, and bd dolt push for the Dolt history that `bd bootstrap` restores.
 echo "=== Persisting beads state ==="
 commit_export
-until git push origin "$branch:refactoring-test-coverage"; do
-  echo "Push rejected — retrying..."
-  sleep 1
-  merge_origin
-  commit_export
-done
+push_branch commit_export
 
 dolt_pushed=0
 for attempt in 1 2 3; do
